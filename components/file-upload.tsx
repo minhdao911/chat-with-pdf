@@ -1,14 +1,16 @@
 "use client";
 
-import { uploadToS3 } from "@/lib/s3";
-import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
-import { Loader2, Upload } from "lucide-react";
 import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import toast from "react-hot-toast";
+import { uploadToS3 } from "@/lib/s3";
+import { useMutation } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+import { Loader2, Upload } from "lucide-react";
 
 const FileUpload = () => {
+  const router = useRouter();
   const [isUploading, setIsUploading] = useState(false);
 
   const { mutate, isPending } = useMutation({
@@ -39,12 +41,13 @@ const FileUpload = () => {
           setIsUploading(true);
           const data = await uploadToS3(file);
           if (!data?.file_key || !data.file_name) {
-            toast.error("Seomthing went wrong");
+            toast.error("Something went wrong");
             return;
           }
           mutate(data, {
-            onSuccess: (res) => {
-              console.log(res);
+            onSuccess: ({ chat_id }) => {
+              toast.success("Uploaded file successfully");
+              router.push(`/chat/${chat_id}`);
             },
             onError: () => {
               toast.error("Error creating chat");
@@ -57,7 +60,7 @@ const FileUpload = () => {
         }
       }
     },
-    [mutate]
+    [mutate, router]
   );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({

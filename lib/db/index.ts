@@ -1,5 +1,4 @@
 import { neon, neonConfig } from "@neondatabase/serverless";
-import { migrate } from "drizzle-orm/better-sqlite3/migrator";
 import { drizzle } from "drizzle-orm/neon-http";
 
 neonConfig.fetchConnectionCache = true;
