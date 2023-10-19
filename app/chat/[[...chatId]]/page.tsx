@@ -25,9 +25,9 @@ export default async function ChatPage({ params: { chatId } }: ChatPageProps) {
   return (
     <div className="flex">
       <ChatSideBar chats={_chats} currentChatId={chatId ? chatId[0] : ""} />
-      {chatId ? (
+      {currentChat ? (
         <>
-          <PdfViewer />
+          <PdfViewer pdfUrl={currentChat.pdfUrl} />
           <div className="w-1.5 bg-gray-200" />
           <ChatInterface />
         </>
