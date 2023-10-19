@@ -1,17 +1,16 @@
 import {
-  integer,
   pgEnum,
   pgTable,
-  serial,
   text,
   timestamp,
+  uuid,
   varchar,
 } from "drizzle-orm/pg-core";
 
 export const userSystemEnum = pgEnum("user_system_enum", ["system", "user"]);
 
 export const chats = pgTable("chats", {
-  id: serial("id").primaryKey(),
+  id: uuid("id").defaultRandom().primaryKey(),
   pdfName: text("pdf_name").notNull(),
   pdfUrl: text("pdf_url").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
@@ -19,9 +18,13 @@ export const chats = pgTable("chats", {
   fileKey: text("file_key").notNull(),
 });
 
-export const messagess = pgTable("messages", {
-  id: serial("id").notNull(),
-  chatId: integer("chat_id")
+export type SafeChat = Omit<typeof chats.$inferSelect, "createdAt"> & {
+  createdAt: string;
+};
+
+export const messages = pgTable("messages", {
+  id: uuid("id").defaultRandom().notNull(),
+  chatId: uuid("chat_id")
     .references(() => chats.id)
     .notNull(),
   content: text("content").notNull(),

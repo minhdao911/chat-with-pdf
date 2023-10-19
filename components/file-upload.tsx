@@ -81,12 +81,12 @@ const FileUpload = () => {
       <input {...getInputProps()} />
       {isPending || isUploading ? (
         <>
-          <Loader2 size={30} className="animate-spin" />
+          <Loader2 size={30} className="animate-spin text-slate-500" />
           <p className="text-slate-400 mt-1">Spilling tea to GPT...</p>
         </>
       ) : (
         <>
-          <Upload size={30} />
+          <Upload size={30} className="text-slate-500" />
           {isDragActive ? (
             <p className="text-slate-400 mt-1">Drop PDF here</p>
           ) : (
