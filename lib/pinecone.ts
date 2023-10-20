@@ -46,7 +46,9 @@ export async function loadS3IntoPinecone(fileKey: string) {
   const documents = await Promise.all(pages.map(prepareDocument));
 
   // 3. vetorise and embed individual documents
-  const vectors = await Promise.all(documents.flat().map(embedDocument));
+  const vectors = await Promise.all(
+    documents.flat().map((d) => embedDocument(d, fileKey))
+  );
 
   // 4. upload to pinecone
   const client = await getPineconeClient();
@@ -54,12 +56,10 @@ export async function loadS3IntoPinecone(fileKey: string) {
 
   console.log("inserting vectors into pinecone");
 
-  const namespace = convertToAscii(fileKey);
-  pineconeIndex.namespace(namespace);
   await pineconeIndex.upsert(vectors);
 }
 
-export async function embedDocument(doc: Document) {
+export async function embedDocument(doc: Document, fileKey: string) {
   try {
     const embeddings = await getEmbeddings(doc.pageContent);
     const hash = md5(doc.pageContent);
@@ -70,6 +70,7 @@ export async function embedDocument(doc: Document) {
       metadata: {
         text: doc.metadata.text,
         pageNumber: doc.metadata.pageNumber,
+        fileKey: convertToAscii(fileKey),
       },
     } as PineconeRecord;
   } catch (err) {
