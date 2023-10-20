@@ -1,10 +1,6 @@
-import { Configuration, OpenAIApi } from "openai-edge";
+import { getOpenAIApi } from "./openai";
 
-const config = new Configuration({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
-const openai = new OpenAIApi(config);
+const openai = getOpenAIApi();
 
 export async function getEmbeddings(text: string) {
   try {

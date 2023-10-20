@@ -25,9 +25,9 @@ const ChatSideBar = ({ chats, currentChatId }: ChatSideBarProps) => {
             return (
               <li
                 key={chat.id}
-                className={`flex justify-start items-center p-3 rounded-md truncate cursor-pointer hover:bg-purple-custom-200 hover:text-gray-800 ${
+                className={`flex justify-start items-center p-3 rounded-md truncate cursor-pointer hover:bg-purple-custom-300 hover:text-gray-800 ${
                   selected
-                    ? "bg-purple-custom-200 text-gray-800"
+                    ? "bg-purple-custom-300 text-gray-800"
                     : "text-gray-700"
                 }`}
                 onClick={() => router.push(`/chat/${chat.id}`)}

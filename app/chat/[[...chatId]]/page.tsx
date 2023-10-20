@@ -29,7 +29,7 @@ export default async function ChatPage({ params: { chatId } }: ChatPageProps) {
         <>
           <PdfViewer pdfUrl={currentChat.pdfUrl} />
           <div className="w-1.5 bg-gray-200" />
-          <ChatInterface />
+          <ChatInterface currentChat={currentChat} />
         </>
       ) : (
         <ChatFile />
