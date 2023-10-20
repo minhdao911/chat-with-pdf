@@ -75,7 +75,7 @@ const FileUpload = () => {
     <div
       {...getRootProps({
         className:
-          "w-[370px] border-dashed border-2 rounded-xl cursor-pointer bg-gray-50 p-5 py-8 flex justify-center items-center flex-col",
+          "w-[370px] border-dashed border-2 rounded-xl cursor-pointer bg-gray-50 p-5 py-8 flex justify-center items-center flex-col dark:bg-gray-800 dark:border-gray-500",
       })}
     >
       <input {...getInputProps()} />

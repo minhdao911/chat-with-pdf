@@ -58,7 +58,7 @@ const ChatInterface: FunctionComponent<ChatInterfaceProps> = ({
       <form
         className={`${
           scrolled ? "sticky" : "absolute"
-        } bottom-0 left-0 right-0 flex gap-2 bg-white px-3 py-5`}
+        } bottom-0 left-0 right-0 flex gap-2 bg-white dark:bg-background px-3 py-5`}
         onSubmit={handleSubmit}
       >
         <Input
@@ -66,11 +66,18 @@ const ChatInterface: FunctionComponent<ChatInterfaceProps> = ({
           placeholder="Ask any question..."
           onChange={handleInputChange}
         />
-        <Button variant="icon" type="submit" className="bg-purple-custom-300">
+        <Button
+          variant="icon"
+          type="submit"
+          className="bg-purple-custom-300 dark:bg-purple-custom-800"
+        >
           {isLoading ? (
             <Loader2 size={20} className="animate-spin" />
           ) : (
-            <SendHorizonal size={20} className="text-gray-600" />
+            <SendHorizonal
+              size={20}
+              className="text-gray-600 dark:text-gray-200"
+            />
           )}
         </Button>
       </form>

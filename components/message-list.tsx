@@ -30,9 +30,10 @@ const MessageList: FunctionComponent<MessageListProps> = ({
           })}
         >
           <div
-            className={cn("flex rounded-md px-3 py-1.5", {
-              "bg-purple-custom-300": m.role === "user",
-              "bg-gray-100": m.role !== "user",
+            className={cn("flex rounded-md px-3 py-1.5 dark:text-gray-200", {
+              "bg-purple-custom-300 dark:bg-purple-custom-800":
+                m.role === "user",
+              "bg-gray-100 dark:bg-gray-800": m.role !== "user",
             })}
           >
             {m.content}
