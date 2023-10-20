@@ -26,13 +26,13 @@ const MessageList: FunctionComponent<MessageListProps> = ({
           key={m.id}
           className={cn("flex", {
             "justify-end": m.role === "user",
-            "justify-start": m.role === "assistant",
+            "justify-start": m.role !== "user",
           })}
         >
           <div
             className={cn("flex rounded-md px-3 py-1.5", {
               "bg-purple-custom-300": m.role === "user",
-              "bg-gray-100": m.role === "assistant",
+              "bg-gray-100": m.role !== "user",
             })}
           >
             {m.content}

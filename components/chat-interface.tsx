@@ -7,6 +7,8 @@ import { Loader2, SendHorizonal } from "lucide-react";
 import { Button } from "./ui/button";
 import MessageList from "./message-list";
 import { SafeChat } from "@/lib/db/schema";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
 
 interface ChatInterfaceProps {
   currentChat: SafeChat;
@@ -16,12 +18,22 @@ const ChatInterface: FunctionComponent<ChatInterfaceProps> = ({
   currentChat,
 }) => {
   const chatId = currentChat.id;
+  const query = useQuery({
+    queryKey: ["chat", chatId],
+    queryFn: async () => {
+      const response = await axios.post<Message[]>("/api/get-messages", {
+        chatId,
+      });
+      return response.data;
+    },
+  });
   const { messages, input, isLoading, handleInputChange, handleSubmit } =
     useChat({
       body: {
         fileKey: currentChat.fileKey,
         chatId,
       },
+      initialMessages: query.data || [],
     });
 
   const [scrolled, setScrolled] = useState(false);
