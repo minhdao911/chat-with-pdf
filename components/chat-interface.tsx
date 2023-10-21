@@ -51,7 +51,7 @@ const ChatInterface: FunctionComponent<ChatInterfaceProps> = ({
 
   return (
     <div
-      className="relative flex-[2] h-screen overflow-auto pt-3"
+      className="relative w-full h-screen overflow-auto pt-3"
       id="message-container"
     >
       <MessageList messages={messages} isLoading={query.isLoading} />

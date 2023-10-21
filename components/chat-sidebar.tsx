@@ -17,7 +17,7 @@ const ChatSideBar = ({ chats, isPro, currentChatId }: ChatSideBarProps) => {
   const router = useRouter();
 
   return (
-    <div className="w-64 h-screen bg-purple-custom-50 dark:bg-gray-800 px-3 py-5 flex flex-col justify-between">
+    <div className="w-72 h-screen bg-purple-custom-50 dark:bg-gray-800 px-3 py-5 flex flex-col justify-between">
       <div>
         <NewChatButton onClick={() => router.push("/chat")} />
         <div className="w-full mt-3 flex flex-col gap-1">
