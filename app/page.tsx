@@ -22,7 +22,7 @@ export default function Home() {
               smarter way of interacting with your documents.
             </p>
           </div>
-          <Button>
+          <Button className="bg-background text-gray-100 hover:bg-background/90">
             <Link href="/chat" className="flex">
               Go to chat
               <Bot className="ml-1.5" size={18} />

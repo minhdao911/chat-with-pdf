@@ -1,24 +1,19 @@
 "use client";
 
-import { MessageSquare, Moon, PlusCircle, Sun } from "lucide-react";
+import { MessageSquare, PlusCircle } from "lucide-react";
 import { Button } from "./ui/button";
 import { SafeChat } from "@/lib/db/schema";
 import { useRouter } from "next/navigation";
-import { UserButton, useUser } from "@clerk/nextjs";
-import { Switch } from "./ui/switch";
-import { useContext } from "react";
-import { ThemeContext } from "@/app/theme-provider";
+import UserSettings from "./user-settings";
 
 interface ChatSideBarProps {
   chats: SafeChat[];
+  isPro: boolean;
   currentChatId: string;
 }
 
-const ChatSideBar = ({ chats, currentChatId }: ChatSideBarProps) => {
+const ChatSideBar = ({ chats, isPro, currentChatId }: ChatSideBarProps) => {
   const router = useRouter();
-  const { user } = useUser();
-  const { theme, setTheme } = useContext(ThemeContext);
-  const darkmode = theme === "dark";
 
   return (
     <div className="w-64 h-screen bg-purple-custom-50 dark:bg-gray-800 px-3 py-5 flex flex-col justify-between">
@@ -44,20 +39,7 @@ const ChatSideBar = ({ chats, currentChatId }: ChatSideBarProps) => {
           })}
         </div>
       </div>
-      <div className="border-t-2 border-gray-200 dark:border-gray-700 pt-5">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <UserButton />
-            <p className="text-gray-900 dark:text-gray-400">{user?.fullName}</p>
-          </div>
-          <Switch
-            checked={darkmode}
-            icon={darkmode ? Moon : Sun}
-            iconClassName={darkmode ? "text-white" : "text-gray-600"}
-            onClick={() => setTheme(darkmode ? "light" : "dark")}
-          />
-        </div>
-      </div>
+      <UserSettings isPro={isPro} />
     </div>
   );
 };
