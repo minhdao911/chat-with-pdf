@@ -17,7 +17,7 @@ interface ChatPageProps {
 export default async function ChatPage({ params: { chatId } }: ChatPageProps) {
   const { userId } = auth();
   const _chats = (
-    await db.select().from(chats).where(eq(chats.userId, userId))
+    await db.select().from(chats).where(eq(chats.userId, userId!))
   ).map((d) => ({ ...d, createdAt: d.createdAt.toUTCString() }));
   const currentChat = chatId
     ? _chats.find((chat) => chat.id === chatId[0])

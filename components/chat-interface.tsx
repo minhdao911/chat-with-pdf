@@ -67,7 +67,6 @@ const ChatInterface: FunctionComponent<ChatInterfaceProps> = ({
           onChange={handleInputChange}
         />
         <Button
-          variant="icon"
           type="submit"
           className="bg-purple-custom-300 dark:bg-purple-custom-800"
         >

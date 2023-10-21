@@ -12,9 +12,11 @@ import axios from "axios";
 
 interface PricingDialogProps {}
 
+type PlanName = "Free" | "Pro";
+
 const pricingDetails = [
   {
-    planName: "Free",
+    planName: "Free" as PlanName,
     price: 0,
     description: {
       title: "For people just getting started with AskPDF",
@@ -22,7 +24,7 @@ const pricingDetails = [
     },
   },
   {
-    planName: "Pro",
+    planName: "Pro" as PlanName,
     price: 20,
     description: {
       title: "All capabilities unlock",
@@ -78,7 +80,7 @@ const PricingDialog: FunctionComponent<PricingDialogProps> = () => {
 export default PricingDialog;
 
 interface PricingOptionProps {
-  planName: "Free" | "Pro";
+  planName: PlanName;
   price: number;
   description: {
     title: string;

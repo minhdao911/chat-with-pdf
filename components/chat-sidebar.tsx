@@ -5,6 +5,7 @@ import { Button } from "./ui/button";
 import { SafeChat } from "@/lib/db/schema";
 import { useRouter } from "next/navigation";
 import UserSettings from "./user-settings";
+import { MouseEventHandler } from "react";
 
 interface ChatSideBarProps {
   chats: SafeChat[];
@@ -47,7 +48,7 @@ const ChatSideBar = ({ chats, isPro, currentChatId }: ChatSideBarProps) => {
 export default ChatSideBar;
 
 interface NewChatButtonProps {
-  onClick: (evt: MouseEvent) => void;
+  onClick: MouseEventHandler<HTMLButtonElement>;
 }
 
 const NewChatButton = ({ onClick }: NewChatButtonProps) => {
