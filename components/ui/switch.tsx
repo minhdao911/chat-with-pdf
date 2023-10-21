@@ -5,7 +5,17 @@ import * as SwitchPrimitives from "@radix-ui/react-switch";
 
 import { cn } from "@/lib/utils";
 
-const Switch = React.forwardRef((props: any, ref) => {
+type SwitchProps = React.ComponentPropsWithoutRef<
+  typeof SwitchPrimitives.Root
+> & {
+  icon: any;
+  iconClassName: string;
+};
+
+const Switch = React.forwardRef<
+  React.ElementRef<typeof SwitchPrimitives.Root>,
+  SwitchProps
+>((props, ref) => {
   const Icon = props.icon;
 
   return (

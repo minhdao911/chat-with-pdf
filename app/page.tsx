@@ -11,7 +11,7 @@ export default function Home() {
         <Link href="/" className="absolute top-8 left-8">
           <Image src="/logo.svg" alt="logo" width="140" height="100" />
         </Link>
-        <div className="w-full h-full flex flex-col items-center justify-center gap-5">
+        <div className="w-full h-full flex flex-col items-center justify-center gap-3 px-5">
           <div className="flex flex-col items-center gap-2">
             <h1 className="text-5xl font-semibold text-gray-900">
               Chat with PDF
@@ -22,12 +22,21 @@ export default function Home() {
               smarter way of interacting with your documents.
             </p>
           </div>
-          <Button className="bg-background text-gray-100 hover:bg-background/90">
+          <Button className="bg-black/90 text-gray-100 hover:bg-black/80">
             <Link href="/chat" className="flex">
               Go to chat
               <Bot className="ml-1.5" size={18} />
             </Link>
           </Button>
+          <div className="backdrop-blur-sm bg-white/50 p-3 rounded-md mt-5">
+            <Image
+              src="/demo.png"
+              alt="demo image of the app"
+              width="1200"
+              height="700"
+              className="rounded-md"
+            />
+          </div>
         </div>
       </div>
     </ClientOnly>
