@@ -54,7 +54,7 @@ const FileUpload = () => {
             },
           });
         } catch (error) {
-          console.log(error);
+          console.error(error);
         } finally {
           setIsUploading(false);
         }

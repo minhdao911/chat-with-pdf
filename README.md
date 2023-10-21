@@ -1,11 +1,14 @@
 # Overview
 
-A chat application which focuses on answering questions related to the provided PDFs. The app utilises OpenAI API and retrieval-augmented-generation (RAG) concept to generate responses based on the PDFs context.
+A chat application which focuses on information retrieval by answering questions related to the provided PDF documents. The app utilises Langchain, OpenAI API and retrieval-augmented-generation (RAG) concept to generate responses that are deeply informed by the content within the PDFs as well as the context of the chat history.
 
 ## Built with
 
 - Next 13
 - TypeScript
+- OpenAI
+- Langchain
+- Vercel AI SDK
 - Shadcn UI
 - Tailwind CSS
 - Clek Auth
@@ -13,6 +16,4 @@ A chat application which focuses on answering questions related to the provided 
 - NeonDB
 - PineconeDB
 - AWS SDK
-- OpenAI
-- Vercel AI SDK
 - Stripe
