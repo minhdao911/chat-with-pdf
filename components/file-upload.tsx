@@ -8,8 +8,14 @@ import { uploadToS3 } from "@/lib/s3";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { Loader2, Upload } from "lucide-react";
+import { FREE_MAX_CHATS } from "@/constants";
 
-const FileUpload = () => {
+interface FileUploadProps {
+  isPro: boolean;
+  chatCount: number;
+}
+
+const FileUpload = ({ chatCount, isPro }: FileUploadProps) => {
   const router = useRouter();
   const [isUploading, setIsUploading] = useState(false);
 
@@ -31,6 +37,11 @@ const FileUpload = () => {
 
   const onDrop = useCallback(
     async (acceptedFiles: any) => {
+      if (!isPro && chatCount === FREE_MAX_CHATS) {
+        toast("You have reached your file uploads limit");
+        return;
+      }
+
       const file = acceptedFiles[0];
       if (file.size > 10 * 1024 * 1024) {
         // bigger than 10mb
@@ -60,7 +71,7 @@ const FileUpload = () => {
         }
       }
     },
-    [mutate, router]
+    [mutate, router, chatCount]
   );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -75,7 +86,7 @@ const FileUpload = () => {
     <div
       {...getRootProps({
         className:
-          "w-[370px] border-dashed border-2 rounded-xl cursor-pointer bg-gray-50 p-5 py-8 flex justify-center items-center flex-col dark:bg-gray-800 dark:border-gray-500",
+          "w-[370px] border-dashed border-2 rounded-xl cursor-pointer bg-gray-50 p-5 py-8 flex justify-center items-center flex-col dark:bg-neutral-900 dark:border-gray-500",
       })}
     >
       <input {...getInputProps()} />
@@ -86,11 +97,11 @@ const FileUpload = () => {
         </>
       ) : (
         <>
-          <Upload size={30} className="text-slate-500" />
+          <Upload size={30} className="text-gray-400 dark:text-gray-500 mb-1" />
           {isDragActive ? (
-            <p className="text-slate-400 mt-1">Drop PDF here</p>
+            <p className="text-gray-400 dark:text-gray-500">Drop PDF here</p>
           ) : (
-            <p className="text-slate-400 mt-1">
+            <p className="text-gray-400 dark:text-gray-500">
               Drag n drop PDF here, or click to select file
             </p>
           )}

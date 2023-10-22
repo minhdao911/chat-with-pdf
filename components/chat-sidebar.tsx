@@ -9,15 +9,21 @@ import { MouseEventHandler } from "react";
 
 interface ChatSideBarProps {
   chats: SafeChat[];
-  isPro: boolean;
   currentChatId: string;
+  isPro: boolean;
+  messageCount: number;
 }
 
-const ChatSideBar = ({ chats, isPro, currentChatId }: ChatSideBarProps) => {
+const ChatSideBar = ({
+  chats,
+  isPro,
+  currentChatId,
+  messageCount,
+}: ChatSideBarProps) => {
   const router = useRouter();
 
   return (
-    <div className="w-72 h-screen bg-purple-custom-50 dark:bg-gray-800 px-3 py-5 flex flex-col justify-between">
+    <div className="w-72 h-screen bg-purple-custom-50 dark:bg-gray-800 px-4 py-5 flex flex-col justify-between">
       <div>
         <NewChatButton onClick={() => router.push("/chat")} />
         <div className="w-full mt-3 flex flex-col gap-1">
@@ -26,7 +32,7 @@ const ChatSideBar = ({ chats, isPro, currentChatId }: ChatSideBarProps) => {
             return (
               <li
                 key={chat.id}
-                className={`flex justify-start items-center p-3 rounded-md truncate cursor-pointer hover:bg-purple-custom-300 hover:text-gray-800 dark:hover:bg-gray-950 dark:hover:text-gray-300 ${
+                className={`flex justify-start items-center p-3 rounded-md truncate cursor-pointer hover:bg-purple-custom-300 hover:text-gray-800 dark:hover:bg-gray-900 dark:hover:text-gray-300 ${
                   selected
                     ? "bg-purple-custom-300 text-gray-800 dark:bg-gray-950 dark:text-gray-300"
                     : "text-gray-700 dark:text-gray-400"
@@ -40,7 +46,11 @@ const ChatSideBar = ({ chats, isPro, currentChatId }: ChatSideBarProps) => {
           })}
         </div>
       </div>
-      <UserSettings isPro={isPro} />
+      <UserSettings
+        isPro={isPro}
+        messageCount={messageCount}
+        chatCount={chats.length}
+      />
     </div>
   );
 };

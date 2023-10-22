@@ -1,3 +1,5 @@
+"use client";
+
 import { FunctionComponent, useState } from "react";
 import {
   Dialog,
@@ -49,10 +51,10 @@ const PricingDialog: FunctionComponent<PricingDialogProps> = () => {
 
   return (
     <Dialog>
-      <DialogTrigger>
+      <DialogTrigger className="w-full">
         <Button
           variant="ghost"
-          className="w-full justify-start text-gray-900 hover:bg-purple-custom-300 dark:text-gray-300 dark:hover:bg-gray-950"
+          className="w-full text-gray-900 bg-purple-custom-400 hover:bg-purple-custom-500/70 dark:bg-gray-600 dark:text-gray-300 dark:hover:bg-gray-800/50"
         >
           <Crown size={20} className="text-gray-900 dark:text-gray-300 mr-2" />
           Upgrade to Pro

@@ -1,21 +1,27 @@
 "use client";
 
+import axios from "axios";
+import toast from "react-hot-toast";
 import { FunctionComponent, useEffect, useState } from "react";
 import { Message, useChat } from "ai/react";
-import { Input } from "./ui/input";
+import { useQuery } from "@tanstack/react-query";
 import { Loader2, SendHorizonal } from "lucide-react";
+import { Input } from "./ui/input";
+import { SafeChat } from "@/lib/db/schema";
 import { Button } from "./ui/button";
 import MessageList from "./message-list";
-import { SafeChat } from "@/lib/db/schema";
-import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
+import { FREE_MAX_MESSAGES } from "@/constants";
 
 interface ChatInterfaceProps {
   currentChat: SafeChat;
+  isPro: boolean;
+  messageCount: number;
 }
 
 const ChatInterface: FunctionComponent<ChatInterfaceProps> = ({
   currentChat,
+  isPro,
+  messageCount,
 }) => {
   const chatId = currentChat.id;
   const query = useQuery({
@@ -59,7 +65,14 @@ const ChatInterface: FunctionComponent<ChatInterfaceProps> = ({
         className={`${
           scrolled ? "sticky" : "absolute"
         } bottom-0 left-0 right-0 flex gap-2 bg-white dark:bg-background px-3 py-5`}
-        onSubmit={handleSubmit}
+        onSubmit={(e) => {
+          if (!isPro && messageCount === FREE_MAX_MESSAGES) {
+            e.preventDefault();
+            toast("You have reached your messages limit");
+            return;
+          }
+          handleSubmit(e);
+        }}
       >
         <Input
           value={input}
