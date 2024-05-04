@@ -23,7 +23,7 @@ const ChatSideBar = ({
   const router = useRouter();
 
   return (
-    <div className="w-72 h-screen bg-purple-custom-50 dark:bg-gray-800 px-4 py-5 flex flex-col justify-between">
+    <div className="w-72 h-screen shrink-0 bg-purple-custom-50 dark:bg-gray-800 px-4 py-5 flex flex-col justify-between">
       <div>
         <NewChatButton onClick={() => router.push("/chat")} />
         <div className="w-full mt-3 flex flex-col gap-1">
@@ -32,15 +32,15 @@ const ChatSideBar = ({
             return (
               <li
                 key={chat.id}
-                className={`flex justify-start items-center p-3 rounded-md truncate cursor-pointer hover:bg-purple-custom-300 hover:text-gray-800 dark:hover:bg-gray-900 dark:hover:text-gray-300 ${
+                className={`flex justify-start items-center p-3 rounded-md cursor-pointer hover:bg-purple-custom-300 hover:text-gray-800 dark:hover:bg-gray-900 dark:hover:text-gray-300 ${
                   selected
                     ? "bg-purple-custom-300 text-gray-800 dark:bg-gray-950 dark:text-gray-300"
                     : "text-gray-700 dark:text-gray-400"
                 }`}
                 onClick={() => router.push(`/chat/${chat.id}`)}
               >
-                <MessageSquare size={20} className="mr-2" />
-                {chat.pdfName}
+                <MessageSquare size={20} className="shrink-0 mr-2" />
+                <p className="truncate">{chat.pdfName}</p>
               </li>
             );
           })}
