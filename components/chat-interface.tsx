@@ -14,13 +14,13 @@ import { FREE_MAX_MESSAGES } from "@/constants";
 
 interface ChatInterfaceProps {
   currentChat: SafeChat;
-  isPro: boolean;
+  isUsageRestricted: boolean;
   messageCount: number;
 }
 
 const ChatInterface: FunctionComponent<ChatInterfaceProps> = ({
   currentChat,
-  isPro,
+  isUsageRestricted,
   messageCount,
 }) => {
   const chatId = currentChat.id;
@@ -66,7 +66,7 @@ const ChatInterface: FunctionComponent<ChatInterfaceProps> = ({
           scrolled ? "sticky" : "absolute"
         } bottom-0 left-0 right-0 flex gap-2 bg-white dark:bg-background px-3 py-5`}
         onSubmit={(e) => {
-          if (!isPro && messageCount === FREE_MAX_MESSAGES) {
+          if (isUsageRestricted && messageCount === FREE_MAX_MESSAGES) {
             e.preventDefault();
             toast("You have reached your messages limit");
             return;

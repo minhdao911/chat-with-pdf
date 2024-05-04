@@ -11,11 +11,11 @@ import { Loader2, Upload } from "lucide-react";
 import { FREE_MAX_CHATS } from "@/constants";
 
 interface FileUploadProps {
-  isPro: boolean;
+  isUsageRestricted: boolean;
   chatCount: number;
 }
 
-const FileUpload = ({ chatCount, isPro }: FileUploadProps) => {
+const FileUpload = ({ chatCount, isUsageRestricted }: FileUploadProps) => {
   const router = useRouter();
   const [isUploading, setIsUploading] = useState(false);
 
@@ -37,7 +37,7 @@ const FileUpload = ({ chatCount, isPro }: FileUploadProps) => {
 
   const onDrop = useCallback(
     async (acceptedFiles: any) => {
-      if (!isPro && chatCount === FREE_MAX_CHATS) {
+      if (isUsageRestricted && chatCount === FREE_MAX_CHATS) {
         toast("You have reached your file uploads limit");
         return;
       }
@@ -71,6 +71,7 @@ const FileUpload = ({ chatCount, isPro }: FileUploadProps) => {
         }
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [mutate, router, chatCount]
   );
 

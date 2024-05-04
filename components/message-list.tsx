@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import { Message } from "ai";
 import { Loader2, Clipboard } from "lucide-react";
-import { FunctionComponent, useEffect, useState } from "react";
+import { FunctionComponent } from "react";
 import TooltipButton from "./ui/tooltip-button";
 
 interface MessageListProps {

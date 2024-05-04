@@ -6,7 +6,7 @@ import { subscriptions } from "./db/schema";
 const DAY_IN_MS = 24 * 60 * 60 * 1000;
 
 export async function checkSubscription() {
-  const { userId } = await auth();
+  const { userId } = auth();
 
   if (!userId) {
     return false;
@@ -27,3 +27,8 @@ export async function checkSubscription() {
     subscription.stripeCurrentPeriodEnd?.getTime()! + DAY_IN_MS > Date.now();
   return !!isValid;
 }
+
+export const checkAdmin = () => {
+  const { sessionClaims } = auth();
+  return sessionClaims?.metadata.role === "admin";
+};

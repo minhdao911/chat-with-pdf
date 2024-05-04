@@ -3,15 +3,18 @@
 import FileUpload from "./file-upload";
 
 interface ChatFileProps {
-  isPro: boolean;
+  isUsageRestricted: boolean;
   chatCount: number;
 }
 
-const ChatFile = ({ chatCount, isPro }: ChatFileProps) => {
+const ChatFile = ({ chatCount, isUsageRestricted }: ChatFileProps) => {
   return (
     <div className="relative flex-1 w-full h-screen overflow-auto">
       <div className="absolute-center">
-        <FileUpload chatCount={chatCount} isPro={isPro} />
+        <FileUpload
+          chatCount={chatCount}
+          isUsageRestricted={isUsageRestricted}
+        />
       </div>
     </div>
   );

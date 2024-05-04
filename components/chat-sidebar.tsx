@@ -10,13 +10,13 @@ import { MouseEventHandler } from "react";
 interface ChatSideBarProps {
   chats: SafeChat[];
   currentChatId: string;
-  isPro: boolean;
+  isUsageRestricted: boolean;
   messageCount: number;
 }
 
 const ChatSideBar = ({
   chats,
-  isPro,
+  isUsageRestricted,
   currentChatId,
   messageCount,
 }: ChatSideBarProps) => {
@@ -47,7 +47,7 @@ const ChatSideBar = ({
         </div>
       </div>
       <UserSettings
-        isPro={isPro}
+        isUsageRestricted={isUsageRestricted}
         messageCount={messageCount}
         chatCount={chats.length}
       />

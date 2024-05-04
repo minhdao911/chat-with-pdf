@@ -4,7 +4,7 @@ import ChatSideBar from "@/components/chat-sidebar";
 import PdfViewer from "@/components/pdf-viewer";
 import { db } from "@/lib/db";
 import { SafeChat, chats, messages } from "@/lib/db/schema";
-import { checkSubscription } from "@/lib/subscription";
+import { checkAdmin, checkSubscription } from "@lib/account";
 import { auth } from "@clerk/nextjs";
 import { eq } from "drizzle-orm";
 
@@ -26,26 +26,31 @@ export default async function ChatPage({ params: { chatId } }: ChatPageProps) {
     await db.select().from(messages).where(eq(messages.chatId, chat.id));
   });
   const hasValidSubscription = await checkSubscription();
+  const isAdmin = checkAdmin();
+  const isUsageRestricted = !hasValidSubscription && !isAdmin;
 
   return (
     <div className="flex">
       <ChatSideBar
         chats={_chats}
         currentChatId={chatId ? chatId[0] : ""}
-        isPro={hasValidSubscription}
+        isUsageRestricted={isUsageRestricted}
         messageCount={_messages.length}
       />
       {currentChat ? (
         <>
           <PdfViewer pdfUrl={currentChat.pdfUrl} />
           <ChatInterface
-            isPro={hasValidSubscription}
+            isUsageRestricted={isUsageRestricted}
             currentChat={currentChat}
             messageCount={_messages.length}
           />
         </>
       ) : (
-        <ChatFile chatCount={_chats.length} isPro={hasValidSubscription} />
+        <ChatFile
+          chatCount={_chats.length}
+          isUsageRestricted={isUsageRestricted}
+        />
       )}
     </div>
   );
