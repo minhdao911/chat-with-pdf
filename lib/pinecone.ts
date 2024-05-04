@@ -1,13 +1,14 @@
 import { Pinecone, PineconeRecord } from "@pinecone-database/pinecone";
 import { downloadFromS3 } from "./s3-server";
 import { PDFLoader } from "langchain/document_loaders/fs/pdf";
-import {
-  Document,
-  RecursiveCharacterTextSplitter,
-} from "@pinecone-database/doc-splitter";
+import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
+import { Document } from "@pinecone-database/doc-splitter";
 import { getEmbeddings } from "./embeddings";
 import md5 from "md5";
 import { convertToAscii } from "./utils";
+import { PineconeStore } from "langchain/vectorstores/pinecone";
+import { OpenAIEmbeddings } from "langchain/embeddings/openai";
+import { metadata } from "@app/layout";
 
 let pinecone: Pinecone | null = null;
 
@@ -43,36 +44,68 @@ export async function loadS3IntoPinecone(fileKey: string) {
   const pages = (await loader.load()) as PDFPage[];
 
   // 2. Split and segment the pdf into smaller documents
-  const documents = await Promise.all(pages.map(prepareDocument));
+  // const documents = await Promise.all(pages.map(prepareDocument));
+
+  // From the docs https://www.pinecone.io/learn/chunking-strategies/
+  const textSplitter = new RecursiveCharacterTextSplitter({
+    chunkSize: 512,
+    chunkOverlap: 100,
+    separators: ["\n\n", "\n"],
+  });
+
+  let documents = await textSplitter.splitDocuments(pages);
+  documents = documents.map((doc) => ({
+    ...doc,
+    metadata: {
+      ...doc.metadata,
+      fileKey: convertToAscii(fileKey),
+    },
+  }));
+
+  console.log("documents", documents);
 
   // 3. vetorise and embed individual documents
-  const vectors = await Promise.all(
-    documents.flat().map((d) => embedDocument(d, fileKey))
-  );
+  // const vectors = await Promise.all(
+  //   documents.flat().map((d) => embedDocument(d, fileKey))
+  // );
 
   // 4. upload to pinecone
-  const client = await getPineconeClient();
-  const pineconeIndex = client.index("askpdf");
+  console.log(`Loading ${documents.length} chunks into pinecone...`);
 
-  console.log("inserting vectors into pinecone");
+  await embedDocuments(documents, fileKey);
 
-  await pineconeIndex.upsert(vectors);
+  console.log("Data embedded and stored in pinecone index");
+
+  // const client = await getPineconeClient();
+  // const pineconeIndex = client.index("askpdf");
+
+  // console.log("inserting vectors into pinecone");
+
+  // await pineconeIndex.upsert(vectors);
 }
 
-export async function embedDocument(doc: Document, fileKey: string) {
+export async function embedDocuments(docs: Document[], fileKey: string) {
   try {
-    const embeddings = await getEmbeddings(doc.pageContent);
-    const hash = md5(doc.pageContent);
+    const embeddings = new OpenAIEmbeddings();
 
-    return {
-      id: hash,
-      values: embeddings,
-      metadata: {
-        text: doc.metadata.text,
-        pageNumber: doc.metadata.pageNumber,
-        fileKey: convertToAscii(fileKey),
-      },
-    } as PineconeRecord;
+    // const hash = md5(doc.pageContent);
+    const client = await getPineconeClient();
+    const index = client.index("askpdf");
+
+    await PineconeStore.fromDocuments(docs, embeddings, {
+      pineconeIndex: index,
+      textKey: "text",
+    });
+
+    // return {
+    //   id: hash,
+    //   values: embeddings,
+    //   metadata: {
+    //     text: doc.metadata.text,
+    //     pageNumber: doc.metadata.pageNumber,
+    //     fileKey: convertToAscii(fileKey),
+    //   },
+    // } as PineconeRecord;
   } catch (err) {
     console.error("error embedding document", err);
     throw err;
@@ -88,7 +121,11 @@ async function prepareDocument(page: PDFPage) {
   let { pageContent, metadata } = page;
   pageContent = pageContent.replace(/\n/g, " ");
   // split the docs
-  const splitter = new RecursiveCharacterTextSplitter();
+  const splitter = new RecursiveCharacterTextSplitter({
+    chunkSize: 200,
+    chunkOverlap: 0,
+  });
+
   const docs = await splitter.splitDocuments([
     new Document({
       pageContent,
@@ -99,4 +136,18 @@ async function prepareDocument(page: PDFPage) {
     }),
   ]);
   return docs;
+}
+
+export async function deleteVectors(fileKey: string) {
+  try {
+    const client = await getPineconeClient();
+    const index = client.index("askpdf");
+
+    await index.deleteMany({
+      fileKey: { $eq: fileKey },
+    });
+  } catch (err) {
+    console.error("error deleting vectors", err);
+    throw err;
+  }
 }

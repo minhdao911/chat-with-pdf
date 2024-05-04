@@ -10,6 +10,7 @@ import {
 } from "ai";
 import { CUSTOM_QUESTION_GENERATOR_CHAIN_PROMPT } from "./prompts";
 import { Pinecone } from "@pinecone-database/pinecone";
+import { convertToAscii } from "./utils";
 
 const openAIApiKey = process.env.OPENAI_API_KEY;
 
@@ -89,7 +90,7 @@ async function getVectorStore(fileKey: string) {
     const vectorStore = await PineconeStore.fromExistingIndex(embeddings, {
       pineconeIndex,
       filter: {
-        fileKey,
+        fileKey: convertToAscii(fileKey),
       },
     });
 

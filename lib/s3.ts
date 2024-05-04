@@ -1,19 +1,19 @@
 import AWS from "aws-sdk";
 
+AWS.config.update({
+  accessKeyId: process.env.NEXT_PUBLIC_AWS_ACCESS_KEY_ID,
+  secretAccessKey: process.env.NEXT_PUBLIC_AWS_SECRET_ACCESS_KEY,
+});
+
+const s3 = new AWS.S3({
+  params: {
+    bucket: process.env.NEXT_PUBLIC_S3_BUCKET_NAME,
+  },
+  region: process.env.NEXT_PUBLIC_S3_BUCKET_REGION,
+});
+
 export async function uploadToS3(file: File) {
   try {
-    AWS.config.update({
-      accessKeyId: process.env.NEXT_PUBLIC_AWS_ACCESS_KEY_ID,
-      secretAccessKey: process.env.NEXT_PUBLIC_AWS_SECRET_ACCESS_KEY,
-    });
-
-    const s3 = new AWS.S3({
-      params: {
-        bucket: process.env.NEXT_PUBLIC_S3_BUCKET_NAME,
-      },
-      region: process.env.NEXT_PUBLIC_S3_BUCKET_REGION,
-    });
-
     const file_key =
       "uploads/" + Date.now().toString() + file.name.replace(" ", "-");
 
@@ -38,7 +38,22 @@ export async function uploadToS3(file: File) {
     });
 
     return Promise.resolve({ file_key, file_name: file.name });
-  } catch (error) {}
+  } catch (error) {
+    console.error("error uploading file to s3", error);
+  }
+}
+
+export async function removeFileFromS3(fileKey: string) {
+  try {
+    const params = {
+      Bucket: process.env.NEXT_PUBLIC_S3_BUCKET_NAME!,
+      Key: fileKey,
+    };
+    await s3.deleteObject(params);
+  } catch (error) {
+    console.error("error removing s3 file", error);
+    throw error;
+  }
 }
 
 export function getS3Url(file_key: string) {

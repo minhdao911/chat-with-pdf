@@ -23,7 +23,7 @@ export type SafeChat = Omit<typeof chats.$inferSelect, "createdAt"> & {
 };
 
 export const messages = pgTable("messages", {
-  id: uuid("id").defaultRandom().notNull(),
+  id: uuid("id").defaultRandom().primaryKey(),
   chatId: uuid("chat_id")
     .references(() => chats.id)
     .notNull(),
