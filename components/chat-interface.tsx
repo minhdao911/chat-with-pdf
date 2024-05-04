@@ -3,7 +3,7 @@
 import axios from "axios";
 import toast from "react-hot-toast";
 import { FunctionComponent, useEffect, useState } from "react";
-import { Message, useChat } from "ai/react";
+import { useChat } from "ai/react";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2, SendHorizonal } from "lucide-react";
 import { Input } from "./ui/input";
@@ -24,25 +24,33 @@ const ChatInterface: FunctionComponent<ChatInterfaceProps> = ({
   messageCount,
 }) => {
   const chatId = currentChat.id;
+
   const query = useQuery({
     queryKey: ["chat", chatId],
     queryFn: async () => {
-      const response = await axios.post<Message[]>("/api/get-messages", {
+      const response = await axios.post("/api/get-messages", {
         chatId,
       });
       return response.data;
     },
   });
-  const { messages, input, isLoading, handleInputChange, handleSubmit } =
+
+  const { messages, input, isLoading, data, handleInputChange, handleSubmit } =
     useChat({
       body: {
         fileKey: currentChat.fileKey,
         chatId,
       },
-      initialMessages: query.data || [],
+      initialMessages: query.data?.messages || [],
     });
 
+  const sources = (query.data?.sources || []).concat(
+    data ? data.map((d: any) => JSON.parse(d.sources)) : []
+  );
+
   const [scrolled, setScrolled] = useState(false);
+
+  console.log("sources", sources);
 
   useEffect(() => {
     const messageContainer = document.getElementById("message-container");
@@ -60,7 +68,12 @@ const ChatInterface: FunctionComponent<ChatInterfaceProps> = ({
       className="relative w-full h-screen overflow-auto pt-3"
       id="message-container"
     >
-      <MessageList messages={messages} isLoading={query.isLoading} />
+      <MessageList
+        messages={messages}
+        isLoading={query.isLoading}
+        data={sources}
+        chatId={chatId}
+      />
       <form
         className={`${
           scrolled ? "sticky" : "absolute"

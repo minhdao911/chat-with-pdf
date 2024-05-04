@@ -7,6 +7,7 @@ import {
   AIStreamCallbacksAndOptions,
   LangChainStream,
   StreamingTextResponse,
+  experimental_StreamData,
 } from "ai";
 import { CUSTOM_QUESTION_GENERATOR_CHAIN_PROMPT } from "./prompts";
 import { Pinecone } from "@pinecone-database/pinecone";
@@ -43,7 +44,11 @@ export async function callChain({
   try {
     const sanitizedQuestion = question.trim().replaceAll("\n", " ");
     const vectorStore = await getVectorStore(fileKey);
-    const { stream, handlers } = LangChainStream(streamCallbacks);
+    const { stream, handlers } = LangChainStream({
+      ...streamCallbacks,
+      experimental_streamData: true,
+    });
+    const data = new experimental_StreamData();
 
     const chain = ConversationalRetrievalQAChain.fromLLM(
       streamingModel,
@@ -59,19 +64,31 @@ export async function callChain({
           llm: nonStreamingModel,
           template: CUSTOM_QUESTION_GENERATOR_CHAIN_PROMPT,
         },
-        returnSourceDocuments: true,
+        returnSourceDocuments: true, // default 4
       }
     );
 
-    chain.call(
-      {
-        question: sanitizedQuestion,
-        chat_history: chatHistory,
-      },
-      [handlers]
-    );
+    chain
+      .call(
+        {
+          question: sanitizedQuestion,
+          chat_history: chatHistory,
+        },
+        [handlers]
+      )
+      .then(async (res) => {
+        const sourceDocuments = res?.sourceDocuments;
+        const _sources = sourceDocuments.map((doc: any) => ({
+          pageNumber: doc.metadata["loc.pageNumber"],
+          content: doc.pageContent,
+        }));
+        data.append({
+          sources: JSON.stringify(_sources),
+        });
+        data.close();
+      });
 
-    return new StreamingTextResponse(stream);
+    return new StreamingTextResponse(stream, {}, data);
   } catch (err) {
     console.error("error while using callChain");
     throw err;

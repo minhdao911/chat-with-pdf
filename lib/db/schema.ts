@@ -1,4 +1,5 @@
 import {
+  integer,
   pgEnum,
   pgTable,
   text,
@@ -43,4 +44,14 @@ export const subscriptions = pgTable("subscriptions", {
   }).unique(),
   stripePriceId: varchar("stripe_price_id", { length: 256 }),
   stripeCurrentPeriodEnd: timestamp("stripe_current_period_end"),
+});
+
+export const sources = pgTable("sources", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  messageId: uuid("message_id")
+    .references(() => messages.id)
+    .notNull(),
+  pageNumber: integer("page_number").notNull(),
+  content: text("content").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
 });
