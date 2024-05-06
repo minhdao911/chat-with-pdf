@@ -56,7 +56,7 @@ const FileUpload = ({ chatCount, isUsageRestricted }: FileUploadProps) => {
             return;
           }
           mutate(data, {
-            onSuccess: ({ chat_id }) => {
+            onSuccess: ({ chat_id }: { chat_id: string }) => {
               toast.success("Uploaded file successfully");
               router.push(`/chat/${chat_id}`);
             },

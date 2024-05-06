@@ -49,7 +49,11 @@ export async function removeFileFromS3(fileKey: string) {
       Bucket: process.env.NEXT_PUBLIC_S3_BUCKET_NAME!,
       Key: fileKey,
     };
-    await s3.deleteObject(params);
+    const res = s3.deleteObject(params).promise();
+    await res.then(() => {
+      console.log("success removing s3 file");
+    });
+    return Promise.resolve();
   } catch (error) {
     console.error("error removing s3 file", error);
     throw error;

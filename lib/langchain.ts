@@ -82,10 +82,9 @@ async function getVectorStore(fileKey: string) {
   try {
     const embeddings = new OpenAIEmbeddings();
     const pinecone = new Pinecone({
-      environment: process.env.PINECONE_ENVIRONMENT!,
       apiKey: process.env.PINECONE_API_KEY!,
     });
-    const pineconeIndex = pinecone.index("askpdf");
+    const pineconeIndex = pinecone.index("askpdf").namespace(fileKey);
 
     const vectorStore = await PineconeStore.fromExistingIndex(embeddings, {
       pineconeIndex,

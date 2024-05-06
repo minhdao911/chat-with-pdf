@@ -57,14 +57,14 @@ const ChatSideBar = ({
                   <p className="truncate">{chat.pdfName}</p>
                 </div>
                 <div
-                  className="group-hover:block hidden shrink-0 p-1 bg-gray-600 rounded"
+                  className="group-hover:block hidden shrink-0 p-1 bg-purple-custom-100 dark:bg-gray-600 hover:bg-purple-custom-200 hover:dark:bg-gray-700 rounded"
                   onClick={async (e) => {
                     e.stopPropagation();
                     mutate(chat, {
-                      onSuccess: ({ chatId }) => {
+                      onSuccess: ({ chatId }: { chatId: string }) => {
                         toast.success("Delete chat successfully");
                         if (chatId === currentChatId) {
-                          router.push("/chats");
+                          router.push("/chat");
                         } else {
                           router.refresh();
                         }
