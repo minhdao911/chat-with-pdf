@@ -27,12 +27,9 @@ const ChatInterface: FunctionComponent<ChatInterfaceProps> = ({
   const query = useQuery({
     queryKey: ["chat", chatId],
     queryFn: async () => {
-      const response = await axios.post<Message[]>(
-        "/api/protected/get-messages",
-        {
-          chatId,
-        }
-      );
+      const response = await axios.post<Message[]>("/api/get-messages", {
+        chatId,
+      });
       return response.data;
     },
   });

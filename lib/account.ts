@@ -1,4 +1,4 @@
-import { auth } from "@clerk/nextjs/server";
+import { auth } from "@clerk/nextjs";
 import { eq } from "drizzle-orm";
 import { db } from "./db";
 import { subscriptions } from "./db/schema";
