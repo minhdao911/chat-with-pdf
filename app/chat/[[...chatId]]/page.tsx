@@ -5,7 +5,7 @@ import PdfViewer from "@/components/pdf-viewer";
 import { db } from "@/lib/db";
 import { SafeChat, chats, messages } from "@/lib/db/schema";
 import { checkAdmin, checkSubscription } from "@lib/account";
-import { auth } from "@clerk/nextjs";
+import { auth } from "@clerk/nextjs/server";
 import { eq } from "drizzle-orm";
 
 interface ChatPageProps {

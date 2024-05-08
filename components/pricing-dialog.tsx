@@ -41,7 +41,7 @@ const PricingDialog: FunctionComponent<PricingDialogProps> = () => {
   const handleSubscription = async () => {
     try {
       setLoading(true);
-      const response = await axios.get("/api/billing");
+      const response = await axios.get("/api/protected/billing");
       window.location.href = response.data.url;
     } catch (err) {
     } finally {

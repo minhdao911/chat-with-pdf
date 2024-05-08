@@ -27,7 +27,7 @@ const ChatSideBar = ({
 
   const { mutate, isPending } = useMutation({
     mutationFn: async (chat: SafeChat) => {
-      const response = await axios.post("/api/remove-messages", {
+      const response = await axios.post("/api/protected/remove-messages", {
         chatId: chat.id,
         fileKey: chat.fileKey,
       });
@@ -57,7 +57,7 @@ const ChatSideBar = ({
                   <p className="truncate">{chat.pdfName}</p>
                 </div>
                 <div
-                  className="group-hover:block hidden shrink-0 p-1 bg-gray-600 rounded"
+                  className="group-hover:block hidden shrink-0 p-1 bg-purple-custom-100 dark:bg-gray-600 hover:shadow rounded"
                   onClick={async (e) => {
                     e.stopPropagation();
                     mutate(chat, {
