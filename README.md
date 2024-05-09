@@ -16,4 +16,3 @@ A chat application which focuses on information retrieval by answering questions
 - NeonDB
 - PineconeDB
 - AWS SDK
-- Stripe
