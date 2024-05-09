@@ -19,7 +19,7 @@ interface SourcesDialogProps {
 }
 
 const SourcesDialog: FunctionComponent<SourcesDialogProps> = ({ sources }) => {
-  return (
+  return sources?.length > 0 ? (
     <Dialog>
       <DialogTrigger>
         <TooltipButton icon={List} tooltipText="Show sources" />
@@ -47,7 +47,7 @@ const SourcesDialog: FunctionComponent<SourcesDialogProps> = ({ sources }) => {
         </div>
       </DialogContent>
     </Dialog>
-  );
+  ) : null;
 };
 
 export default SourcesDialog;

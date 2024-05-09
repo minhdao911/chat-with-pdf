@@ -1,17 +1,17 @@
-import { OpenAIEmbeddings } from "langchain/embeddings/openai";
-import { PineconeStore } from "langchain/vectorstores/pinecone";
-import { ConversationalRetrievalQAChain } from "langchain/chains";
-import { ChatOpenAI } from "langchain/chat_models/openai";
-import { BufferMemory } from "langchain/memory";
-import {
-  AIStreamCallbacksAndOptions,
-  LangChainStream,
-  StreamingTextResponse,
-  experimental_StreamData,
-} from "ai";
-import { CUSTOM_QUESTION_GENERATOR_CHAIN_PROMPT } from "./prompts";
 import { Pinecone } from "@pinecone-database/pinecone";
-import { convertToAscii } from "./utils";
+import { ChatOpenAI, OpenAIEmbeddings } from "@langchain/openai";
+import { PineconeStore } from "@langchain/pinecone";
+import { Document } from "@langchain/core/documents";
+import { PromptTemplate } from "@langchain/core/prompts";
+import { RunnableSequence } from "@langchain/core/runnables";
+import {
+  BytesOutputParser,
+  StringOutputParser,
+} from "@langchain/core/output_parsers";
+import { CallbackManager } from "@langchain/core/callbacks/manager";
+import { CallbackHandlerMethods } from "@langchain/core/callbacks/base";
+import { StreamingTextResponse } from "ai";
+import { ANSWER_TEMPLATE, QUESTION_TEMPLATE } from "./prompts";
 
 const openAIApiKey = process.env.OPENAI_API_KEY;
 
@@ -28,86 +28,119 @@ const nonStreamingModel = new ChatOpenAI({
   temperature: 0,
 });
 
-type callChainArgs = {
+type retrievalArgs = {
   question: string;
   chatHistory: string;
+  previousMessages: string[];
   fileKey: string;
-  streamCallbacks?: AIStreamCallbacksAndOptions;
+  streamCallbacks: CallbackHandlerMethods;
 };
 
-export async function callChain({
+const combineDocumentsFn = (docs: Document[]) => {
+  const serializedDocs = docs.map((doc) => doc.pageContent);
+  return serializedDocs.join("\n\n");
+};
+
+const questionPrompt = PromptTemplate.fromTemplate(QUESTION_TEMPLATE);
+const answerPrompt = PromptTemplate.fromTemplate(ANSWER_TEMPLATE);
+
+export async function retrieval({
   question,
   chatHistory,
+  previousMessages,
   fileKey,
   streamCallbacks,
-}: callChainArgs) {
-  try {
-    const sanitizedQuestion = question.trim().replaceAll("\n", " ");
-    const vectorStore = await getVectorStore(fileKey);
-    const { stream, handlers } = LangChainStream({
-      ...streamCallbacks,
-      experimental_streamData: true,
-    });
-    const data = new experimental_StreamData();
+}: retrievalArgs) {
+  const sanitizedQuestion = question.trim().replaceAll("\n", " ");
+  const vectorstore = getVectorStore(fileKey);
 
-    const chain = ConversationalRetrievalQAChain.fromLLM(
-      streamingModel,
-      vectorStore.asRetriever(),
+  /**
+   * https://js.langchain.com/docs/expression_language/cookbook/retrieval
+   */
+  const standaloneQuestionChain = RunnableSequence.from([
+    questionPrompt,
+    nonStreamingModel,
+    new StringOutputParser(),
+  ]);
+
+  let resolveWithDocuments: (value: Document[]) => void;
+  const documentPromise = new Promise<Document[]>((resolve) => {
+    resolveWithDocuments = resolve;
+  });
+
+  const retriever = vectorstore.asRetriever({
+    callbacks: [
       {
-        memory: new BufferMemory({
-          memoryKey: "chat_history",
-          inputKey: "question", // The key for the input to the chain
-          outputKey: "text", // The key for the final conversational output of the chain
-          returnMessages: true,
-        }),
-        questionGeneratorChainOptions: {
-          llm: nonStreamingModel,
-          template: CUSTOM_QUESTION_GENERATOR_CHAIN_PROMPT,
+        handleRetrieverEnd(documents) {
+          resolveWithDocuments(documents);
         },
-        returnSourceDocuments: true, // default 4
-      }
-    );
+      },
+    ],
+  });
 
-    chain
-      .call(
-        {
-          question: sanitizedQuestion,
-          chat_history: chatHistory,
-        },
-        [handlers]
-      )
-      .then(async (res) => {
-        const sourceDocuments = res?.sourceDocuments;
-        const _sources = sourceDocuments.map((doc: any) => ({
-          pageNumber: doc.metadata["loc.pageNumber"],
+  const retrievalChain = retriever.pipe(combineDocumentsFn);
+
+  const answerChain = RunnableSequence.from([
+    {
+      context: RunnableSequence.from([
+        (input) => input.question,
+        retrievalChain,
+      ]),
+      chat_history: (input) => input.chat_history,
+      question: (input) => input.question,
+    },
+    answerPrompt,
+    streamingModel,
+  ]);
+
+  const conversationalRetrievalQAChain = RunnableSequence.from([
+    {
+      question: standaloneQuestionChain,
+      chat_history: (input) => input.chat_history,
+    },
+    answerChain,
+    new BytesOutputParser(),
+  ]);
+
+  const stream = await conversationalRetrievalQAChain.stream(
+    {
+      question: sanitizedQuestion,
+      chat_history: chatHistory,
+    },
+    { callbacks: CallbackManager.fromHandlers(streamCallbacks) }
+  );
+
+  const documents = await documentPromise;
+  const serializedSources = Buffer.from(
+    JSON.stringify(
+      documents.map((doc) => {
+        return {
           content: doc.pageContent,
-        }));
-        data.append({
-          sources: JSON.stringify(_sources),
-        });
-        data.close();
-      });
+          pageNumber: doc.metadata.pageNumber,
+        };
+      })
+    )
+  ).toString("base64");
 
-    return new StreamingTextResponse(stream, {}, data);
-  } catch (err) {
-    console.error("error while using callChain");
-    throw err;
-  }
+  return new StreamingTextResponse(stream, {
+    headers: {
+      "x-message-index": (previousMessages.length + 1).toString(),
+      "x-sources": serializedSources,
+    },
+  });
 }
 
-async function getVectorStore(fileKey: string) {
+function getVectorStore(fileKey: string) {
   try {
     const embeddings = new OpenAIEmbeddings();
     const pinecone = new Pinecone({
       apiKey: process.env.PINECONE_API_KEY!,
     });
-    const pineconeIndex = pinecone.index("askpdf").namespace(fileKey);
+    const pineconeIndex = pinecone.index("askpdf");
 
-    const vectorStore = await PineconeStore.fromExistingIndex(embeddings, {
+    const vectorStore = new PineconeStore(embeddings, {
       pineconeIndex,
-      filter: {
-        fileKey: convertToAscii(fileKey),
-      },
+      namespace: fileKey,
     });
 
     return vectorStore;

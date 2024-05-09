@@ -7,7 +7,7 @@ import { useChat } from "ai/react";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2, SendHorizonal } from "lucide-react";
 import { Input } from "./ui/input";
-import { SafeChat } from "@/lib/db/schema";
+import { SafeChat, SafeSource } from "@/lib/db/schema";
 import { Button } from "./ui/button";
 import MessageList from "./message-list";
 import { FREE_MAX_MESSAGES } from "@/constants";
@@ -35,22 +35,32 @@ const ChatInterface: FunctionComponent<ChatInterfaceProps> = ({
     },
   });
 
-  const { messages, input, isLoading, data, handleInputChange, handleSubmit } =
+  const [scrolled, setScrolled] = useState(false);
+  const [sourcesForMessages, setSourcesForMessages] = useState<
+    Record<string, any>
+  >({});
+
+  const { messages, input, isLoading, handleInputChange, handleSubmit } =
     useChat({
       body: {
         fileKey: currentChat.fileKey,
         chatId,
       },
       initialMessages: query.data?.messages || [],
+      onResponse: (response) => {
+        const sourcesHeader = response.headers.get("x-sources");
+        const sources = sourcesHeader
+          ? JSON.parse(Buffer.from(sourcesHeader, "base64").toString("utf8"))
+          : [];
+        const messageIndexHeader = response.headers.get("x-message-index");
+        if (sources.length && messageIndexHeader !== null) {
+          setSourcesForMessages({
+            ...sourcesForMessages,
+            [messageIndexHeader]: sources,
+          });
+        }
+      },
     });
-
-  const sources = (query.data?.sources || []).concat(
-    data ? data.map((d: any) => JSON.parse(d.sources)) : []
-  );
-
-  const [scrolled, setScrolled] = useState(false);
-
-  console.log("sources", sources);
 
   useEffect(() => {
     const messageContainer = document.getElementById("message-container");
@@ -63,6 +73,18 @@ const ChatInterface: FunctionComponent<ChatInterfaceProps> = ({
     }
   }, [messages]);
 
+  useEffect(() => {
+    if (query.data?.sources) {
+      const msgSources = query.data?.sources
+        ? (query.data?.sources as SafeSource[]).reduce(
+            (a, v) => ({ ...a, [v.messageId]: v.data }),
+            {}
+          )
+        : {};
+      setSourcesForMessages(msgSources);
+    }
+  }, [query.data?.sources]);
+
   return (
     <div
       className="relative w-full h-screen overflow-auto pt-3"
@@ -71,7 +93,7 @@ const ChatInterface: FunctionComponent<ChatInterfaceProps> = ({
       <MessageList
         messages={messages}
         isLoading={query.isLoading}
-        data={sources}
+        data={sourcesForMessages}
         chatId={chatId}
       />
       <form

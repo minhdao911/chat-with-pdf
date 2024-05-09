@@ -1,44 +1,71 @@
 import { db } from "@/lib/db";
-import { messages as _messages } from "@/lib/db/schema";
-import { callChain } from "@/lib/langchain";
+import { messages as _messages, sources as _sources } from "@/lib/db/schema";
+import { retrieval } from "@/lib/langchain";
 import { Message } from "ai";
 import { NextResponse } from "next/server";
 
 export const runtime = "edge";
 
-const formatMessage = (message: Message) => {
-  return `${message.role === "user" ? "Human" : "Assistant"}: ${
-    message.content
-  }`;
+const formatMessages = (messages: Message[]) => {
+  const formattedMessages = messages.map(
+    (message) =>
+      `${message.role === "user" ? "Human" : "Assistant"}: ${message.content}`
+  );
+  return formattedMessages.join("/n");
 };
 
 export async function POST(req: Request) {
   try {
     const { messages, fileKey, chatId } = await req.json();
-    const lastMessage = messages[messages.length - 1].content;
-    const formattedMessages = messages.map(formatMessage);
-    const chatHistory = formattedMessages.join("\n");
+    const currentMessageContent = messages[messages.length - 1].content;
+    const previousMessages = messages.slice(0, -1);
+    const chatHistory = formatMessages(previousMessages);
 
-    const streamingtextResponse = await callChain({
-      question: lastMessage,
+    // save user message into db
+    await db.insert(_messages).values({
+      chatId,
+      content: currentMessageContent,
+      role: "user",
+    });
+
+    let count = 0;
+    let sources: { content: string; pageNumber: number }[] = [];
+
+    const streamingtextResponse = await retrieval({
+      question: currentMessageContent,
       chatHistory,
+      previousMessages,
       fileKey,
       streamCallbacks: {
-        onStart: async () => {
-          // save user message into db
-          await db.insert(_messages).values({
-            chatId,
-            content: lastMessage,
-            role: "user",
-          });
+        handleRetrieverEnd: (documents) => {
+          sources = documents.map((d) => ({
+            content: d.pageContent,
+            pageNumber: d.metadata.pageNumber,
+          }));
         },
-        onCompletion: async (completion) => {
-          // save ai message into db
-          await db.insert(_messages).values({
-            chatId,
-            content: completion,
-            role: "system",
-          });
+        handleLLMEnd: async (output) => {
+          count++;
+          if (count == 2) {
+            // save ai message into db
+            const completion = output.generations[0][0].text;
+            const messageId = await db
+              .insert(_messages)
+              .values({
+                chatId,
+                content: completion,
+                role: "system",
+              })
+              .returning({
+                insertedId: _messages.id,
+              });
+            if (sources.length > 0) {
+              await db.insert(_sources).values({
+                messageId: messageId[0].insertedId,
+                chatId,
+                data: JSON.stringify(sources),
+              });
+            }
+          }
         },
       },
     });

@@ -11,6 +11,9 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^4.25.4",
+    "@langchain/community": "^0.0.55",
+    "@langchain/openai": "^0.0.28",
+    "@langchain/pinecone": "^0.0.4",
     "@neondatabase/serverless": "^0.6.0",
     "@pinecone-database/doc-splitter": "^0.0.1",
     "@pinecone-database/pinecone": "^2.2.0",
@@ -25,7 +28,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
     "drizzle-orm": "^0.28.6",
-    "langchain": "^0.0.168",
+    "langchain": "^0.1.36",
     "lucide-react": "^0.287.0",
     "md5": "^2.3.0",
     "next": "13.3.0",

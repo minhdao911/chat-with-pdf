@@ -3,7 +3,7 @@ import ChatInterface from "@/components/chat-interface";
 import ChatSideBar from "@/components/chat-sidebar";
 import PdfViewer from "@/components/pdf-viewer";
 import { db } from "@/lib/db";
-import { SafeChat, chats, messages } from "@/lib/db/schema";
+import { SafeChat, chats, messages, sources } from "@/lib/db/schema";
 import { checkAdmin, checkSubscription } from "@lib/account";
 import { auth } from "@clerk/nextjs";
 import { eq } from "drizzle-orm";
@@ -22,9 +22,11 @@ export default async function ChatPage({ params: { chatId } }: ChatPageProps) {
   const currentChat = chatId
     ? _chats.find((chat: SafeChat) => chat.id === chatId[0])
     : null;
-  const _messages = _chats.map(async (chat: SafeChat) => {
-    await db.select().from(messages).where(eq(messages.chatId, chat.id));
-  });
+  const _messages = await Promise.all(
+    _chats.map((chat: SafeChat) =>
+      db.select().from(messages).where(eq(messages.chatId, chat.id))
+    )
+  );
   const hasValidSubscription = await checkSubscription();
   const isAdmin = checkAdmin();
   const isUsageRestricted = !hasValidSubscription && !isAdmin;
@@ -35,7 +37,7 @@ export default async function ChatPage({ params: { chatId } }: ChatPageProps) {
         chats={_chats}
         currentChatId={chatId ? chatId[0] : ""}
         isUsageRestricted={isUsageRestricted}
-        messageCount={_messages.length}
+        messageCount={_messages[0].length}
       />
       {currentChat ? (
         <>
@@ -43,7 +45,7 @@ export default async function ChatPage({ params: { chatId } }: ChatPageProps) {
           <ChatInterface
             isUsageRestricted={isUsageRestricted}
             currentChat={currentChat}
-            messageCount={_messages.length}
+            messageCount={_messages[0].length}
           />
         </>
       ) : (

@@ -1,5 +1,6 @@
 import {
   integer,
+  json,
   pgEnum,
   pgTable,
   text,
@@ -46,12 +47,31 @@ export const subscriptions = pgTable("subscriptions", {
   stripeCurrentPeriodEnd: timestamp("stripe_current_period_end"),
 });
 
+// export const sources = pgTable("sources", {
+//   id: uuid("id").defaultRandom().primaryKey(),
+//   messageId: uuid("message_id")
+//     .references(() => messages.id)
+//     .notNull(),
+//   chatId: uuid("chat_id")
+//     .references(() => chats.id)
+//     .notNull(),
+//   pageNumber: integer("page_number").notNull(),
+//   content: text("content").notNull(),
+//   createdAt: timestamp("created_at").notNull().defaultNow(),
+// });
+
 export const sources = pgTable("sources", {
   id: uuid("id").defaultRandom().primaryKey(),
   messageId: uuid("message_id")
     .references(() => messages.id)
     .notNull(),
-  pageNumber: integer("page_number").notNull(),
-  content: text("content").notNull(),
+  chatId: uuid("chat_id")
+    .references(() => chats.id)
+    .notNull(),
+  data: json("data").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
+
+export type SafeSource = Omit<typeof sources.$inferSelect, "createdAt"> & {
+  createdAt: string;
+};
