@@ -12,7 +12,7 @@ import toast from "react-hot-toast";
 
 interface ChatSideBarProps {
   chats: SafeChat[];
-  currentChatId: string;
+  currentChatId?: string;
   isUsageRestricted: boolean;
   messageCount: number;
 }

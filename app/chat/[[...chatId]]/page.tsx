@@ -23,7 +23,7 @@ export default async function ChatPage({ params: { chatId } }: ChatPageProps) {
     <div className="flex">
       <ChatSideBar
         chats={chats}
-        currentChatId={chatId ? chatId[0] : ""}
+        currentChatId={currentChat?.id}
         isUsageRestricted={isUsageRestricted}
         messageCount={messages.length}
       />
