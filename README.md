@@ -4,7 +4,7 @@ A chat application which focuses on information retrieval by answering questions
 
 ## Built with
 
-- Next 13
+- NextJS
 - TypeScript
 - OpenAI
 - Langchain

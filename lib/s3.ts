@@ -1,43 +1,34 @@
-import AWS from "aws-sdk";
+import {
+  S3Client,
+  PutObjectCommand,
+  DeleteObjectCommand,
+} from "@aws-sdk/client-s3";
 
-AWS.config.update({
-  accessKeyId: process.env.NEXT_PUBLIC_AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.NEXT_PUBLIC_AWS_SECRET_ACCESS_KEY,
-});
-
-const s3 = new AWS.S3({
-  params: {
-    bucket: process.env.NEXT_PUBLIC_S3_BUCKET_NAME,
+const s3Client = new S3Client({
+  region: process.env.NEXT_PUBLIC_S3_BUCKET_REGION!,
+  credentials: {
+    accessKeyId: process.env.NEXT_PUBLIC_AWS_ACCESS_KEY_ID!,
+    secretAccessKey: process.env.NEXT_PUBLIC_AWS_SECRET_ACCESS_KEY!,
   },
-  region: process.env.NEXT_PUBLIC_S3_BUCKET_REGION,
 });
 
 export async function uploadToS3(file: File) {
   try {
-    const file_key =
+    const fileKey =
       "uploads/" + Date.now().toString() + file.name.replace(" ", "-");
 
     const params = {
-      Bucket: process.env.NEXT_PUBLIC_S3_BUCKET_NAME!,
-      Key: file_key,
+      Bucket: process.env.NEXT_PUBLIC_S3_BUCKET_NAME,
+      Key: fileKey,
       Body: file,
+      ContentType: file.type,
     };
 
-    const upload = s3
-      .putObject(params)
-      .on("httpUploadProgress", (evt) => {
-        console.log(
-          "uploading to s3...",
-          parseInt(((evt.loaded * 100) / evt.total).toString()) + "%"
-        );
-      })
-      .promise();
+    const command = new PutObjectCommand(params);
+    await s3Client.send(command);
+    console.log("success uploading file to s3", fileKey);
 
-    await upload.then((data) => {
-      console.log("success uploading file to s3", file_key);
-    });
-
-    return Promise.resolve({ file_key, file_name: file.name });
+    return Promise.resolve({ file_key: fileKey, file_name: file.name });
   } catch (error) {
     console.error("error uploading file to s3", error);
   }
@@ -49,11 +40,10 @@ export async function removeFileFromS3(fileKey: string) {
       Bucket: process.env.NEXT_PUBLIC_S3_BUCKET_NAME!,
       Key: fileKey,
     };
-    const res = s3.deleteObject(params).promise();
-    await res.then(() => {
-      console.log("success removing s3 file", fileKey);
-    });
-    return Promise.resolve();
+
+    const command = new DeleteObjectCommand(params);
+    await s3Client.send(command);
+    console.log("success removing s3 file", fileKey);
   } catch (error) {
     console.error("error removing s3 file", error);
     throw error;

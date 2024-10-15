@@ -10,6 +10,7 @@
     "db-push": "drizzle-kit push:pg"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.670.0",
     "@clerk/nextjs": "^5.7.2",
     "@langchain/community": "^0.0.55",
     "@langchain/openai": "^0.0.28",
@@ -23,7 +24,6 @@
     "@radix-ui/react-tooltip": "^1.0.7",
     "@tanstack/react-query": "^5.0.0",
     "ai": "^2.2.16",
-    "aws-sdk": "^2.1477.0",
     "axios": "^1.5.1",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",

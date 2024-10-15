@@ -1,32 +1,43 @@
-import AWS from "aws-sdk";
+import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
 import fs from "fs";
+import { Readable } from "stream";
 
-export async function downloadFromS3(file_key: string) {
+const s3Client = new S3Client({
+  region: process.env.NEXT_PUBLIC_S3_BUCKET_REGION!,
+  credentials: {
+    accessKeyId: process.env.NEXT_PUBLIC_AWS_ACCESS_KEY_ID!,
+    secretAccessKey: process.env.NEXT_PUBLIC_AWS_SECRET_ACCESS_KEY!,
+  },
+});
+
+export async function downloadFromS3(fileKey: string) {
   try {
-    AWS.config.update({
-      accessKeyId: process.env.NEXT_PUBLIC_AWS_ACCESS_KEY_ID,
-      secretAccessKey: process.env.NEXT_PUBLIC_AWS_SECRET_ACCESS_KEY,
-    });
-
-    const s3 = new AWS.S3({
-      params: {
-        bucket: process.env.NEXT_PUBLIC_S3_BUCKET_NAME,
-      },
-      region: process.env.NEXT_PUBLIC_S3_BUCKET_REGION,
-    });
-
     const params = {
       Bucket: process.env.NEXT_PUBLIC_S3_BUCKET_NAME!,
-      Key: file_key,
+      Key: fileKey,
     };
 
-    const obj = await s3.getObject(params).promise();
-    const file_name = `/tmp/pdf-${Date.now()}.pdf`;
-    fs.writeFileSync(file_name, obj.Body as Buffer);
+    const fileName = `/tmp/pdf-${Date.now()}.pdf`;
+    const command = new GetObjectCommand(params);
+    const data = await s3Client.send(command);
+    const stream = data.Body as Readable;
 
-    return file_name;
+    if (!stream) throw new Error("Cannot get file stream");
+
+    const buffer = await getStreamBuffer(stream);
+    fs.writeFileSync(fileName, buffer);
+
+    return fileName;
   } catch (err) {
     console.error(err);
     return null;
   }
 }
+
+const getStreamBuffer = (stream: Readable) =>
+  new Promise<Buffer>((resolve, reject) => {
+    const chunks: any[] = [];
+    stream.on("data", (chunk) => chunks.push(chunk));
+    stream.once("end", () => resolve(Buffer.concat(chunks)));
+    stream.once("error", reject);
+  });
