@@ -27,7 +27,7 @@ const pricingDetails = [
   },
   {
     planName: "Pro" as PlanName,
-    price: 20,
+    price: 9.99,
     description: {
       title: "All capabilities unlock",
       items: ["Unlimited PDF files", "Unlimited generations"],

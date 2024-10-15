@@ -50,8 +50,9 @@ const UserSettings = ({
           {flags?.billing && (
             <div className="w-full">
               <p className="text-xs text-center text-gray-700 dark:text-gray-400 mb-3">
-                Unlock powerful features and unlimited usage with our{" "}
-                <b>Pro upgrade</b> today!
+                Unlock unlimited usage with
+                <br />
+                <b>Pro plan</b> subscription
               </p>
               <PricingDialog />
             </div>

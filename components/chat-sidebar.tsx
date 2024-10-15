@@ -56,8 +56,10 @@ const ChatSideBar = ({
                   <MessageSquare size={20} className="shrink-0 mr-2" />
                   <p className="truncate">{chat.pdfName}</p>
                 </div>
-                <div
-                  className="group-hover:block hidden shrink-0 p-1 bg-purple-custom-100 dark:bg-gray-600 hover:bg-purple-custom-200 hover:dark:bg-gray-700 rounded"
+                <Button
+                  variant="ghost"
+                  className="group-hover:block hidden h-fit shrink-0 p-1 bg-purple-custom-100 dark:bg-gray-600 hover:bg-purple-custom-200 hover:dark:bg-gray-700 rounded"
+                  disabled={isPending}
                   onClick={async (e) => {
                     e.stopPropagation();
                     mutate(chat, {
@@ -76,7 +78,7 @@ const ChatSideBar = ({
                   }}
                 >
                   <Trash size={15} />
-                </div>
+                </Button>
               </li>
             );
           })}
