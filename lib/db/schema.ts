@@ -1,5 +1,4 @@
 import {
-  integer,
   json,
   pgEnum,
   pgTable,
@@ -33,6 +32,11 @@ export const messages = pgTable("messages", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
   role: userSystemEnum("role").notNull(),
 });
+
+export type Message = typeof messages.$inferSelect;
+export type SafeMessage = Omit<Message, "createdAt"> & {
+  createdAt: string;
+};
 
 export const subscriptions = pgTable("subscriptions", {
   id: uuid("id").defaultRandom().notNull(),
