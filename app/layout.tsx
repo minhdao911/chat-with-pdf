@@ -6,6 +6,7 @@ import "./globals.css";
 import QueryProvider from "@/components/query-provider";
 import { Toaster } from "react-hot-toast";
 import ThemeProvider from "@/components/theme-provider";
+import { FlagsProvider } from "@providers/flags-provider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -24,7 +25,9 @@ export default function RootLayout({
       <QueryProvider>
         <html lang="en" suppressHydrationWarning>
           <body className={inter.className}>
-            <ThemeProvider>{children}</ThemeProvider>
+            <ThemeProvider>
+              <FlagsProvider>{children}</FlagsProvider>
+            </ThemeProvider>
           </body>
           <Toaster />
         </html>

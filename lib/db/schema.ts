@@ -1,4 +1,5 @@
 import {
+  boolean,
   json,
   pgEnum,
   pgTable,
@@ -66,3 +67,9 @@ export const sources = pgTable("sources", {
 export type SafeSource = Omit<typeof sources.$inferSelect, "createdAt"> & {
   createdAt: string;
 };
+
+export const feature_flags = pgTable("feature_flags", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  flag: varchar("flag", { length: 256 }).notNull(),
+  enabled: boolean("enabled").default(false),
+});

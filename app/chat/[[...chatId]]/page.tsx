@@ -16,7 +16,7 @@ export default async function ChatPage({ params: { chatId } }: ChatPageProps) {
   const currentChat = chatId ? getCurrentChat(chats, chatId[0]) : null;
 
   const hasValidSubscription = await checkSubscription();
-  const isAdmin = checkAdmin();
+  const isAdmin = await checkAdmin();
   const isUsageRestricted = !hasValidSubscription && !isAdmin;
 
   return (

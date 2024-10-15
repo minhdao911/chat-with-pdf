@@ -2,10 +2,11 @@
 
 import { useUser, UserButton } from "@clerk/nextjs";
 import { Moon, Sun } from "lucide-react";
-// import PricingDialog from "./pricing-dialog";
+import PricingDialog from "./pricing-dialog";
 import { Switch } from "./ui/switch";
 import { useTheme } from "next-themes";
 import { FREE_MAX_CHATS, FREE_MAX_MESSAGES } from "@/constants";
+import { useFlags } from "@providers/flags-provider";
 
 interface UserSettingsProps {
   isUsageRestricted: boolean;
@@ -19,6 +20,7 @@ const UserSettings = ({
   chatCount,
 }: UserSettingsProps) => {
   const { user } = useUser();
+  const { flags } = useFlags();
   const { theme, setTheme } = useTheme();
   const darkmode = theme === "dark";
 
@@ -45,13 +47,15 @@ const UserSettings = ({
               </p>
             </div>
           </div>
-          {/* <div className="w-full">
-            <p className="text-xs text-center text-gray-700 dark:text-gray-400 mb-3">
-              Unlock powerful features and unlimited usage with our{" "}
-              <b>Pro upgrade</b> today!
-            </p>
-            <PricingDialog />
-          </div> */}
+          {flags?.billing && (
+            <div className="w-full">
+              <p className="text-xs text-center text-gray-700 dark:text-gray-400 mb-3">
+                Unlock powerful features and unlimited usage with our{" "}
+                <b>Pro upgrade</b> today!
+              </p>
+              <PricingDialog />
+            </div>
+          )}
         </div>
       )}
       <div className="flex items-center justify-between">
