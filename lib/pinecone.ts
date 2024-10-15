@@ -130,6 +130,7 @@ export async function deleteVectors(fileKey: string) {
       else break;
       paginationToken = nextPageList.pagination?.next;
     }
+    console.log("success deleting vectors", fileKey);
   } catch (err) {
     console.error("error deleting vectors", err);
     throw err;

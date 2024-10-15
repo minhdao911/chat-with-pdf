@@ -51,7 +51,7 @@ export async function removeFileFromS3(fileKey: string) {
     };
     const res = s3.deleteObject(params).promise();
     await res.then(() => {
-      console.log("success removing s3 file");
+      console.log("success removing s3 file", fileKey);
     });
     return Promise.resolve();
   } catch (error) {
