@@ -1,7 +1,6 @@
 "use client";
 
 import axios from "axios";
-import toast from "react-hot-toast";
 import { FunctionComponent, useEffect, useState } from "react";
 import { useChat } from "ai/react";
 import { useQuery } from "@tanstack/react-query";
@@ -54,6 +53,7 @@ const ChatInterface: FunctionComponent<ChatInterfaceProps> = ({
       body: {
         fileKey: currentChat.fileKey,
         chatId,
+        messageCount,
       },
       initialMessages: query.data?.messages || [],
       onResponse: (response) => {

@@ -1,7 +1,9 @@
 import { db } from "@/lib/db";
 import { messages as _messages, sources as _sources } from "@/lib/db/schema";
 import { retrieval } from "@/lib/langchain";
+import { updateUserSettings } from "@lib/account";
 import { Message } from "ai";
+import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
 export const runtime = "edge";
@@ -16,7 +18,12 @@ const formatMessages = (messages: Message[]) => {
 
 export async function POST(req: Request) {
   try {
-    const { messages, fileKey, chatId } = await req.json();
+    const { userId } = auth();
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const { messages, fileKey, chatId, messageCount } = await req.json();
     const currentMessageContent = messages[messages.length - 1].content;
     const previousMessages = messages.slice(0, -1);
     const chatHistory = formatMessages(previousMessages);
@@ -26,6 +33,9 @@ export async function POST(req: Request) {
       chatId,
       content: currentMessageContent,
       role: "user",
+    });
+    await updateUserSettings({
+      messageCount: messageCount + 1,
     });
 
     let count = 0;

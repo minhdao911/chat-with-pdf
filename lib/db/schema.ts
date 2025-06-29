@@ -1,5 +1,6 @@
 import {
   boolean,
+  integer,
   json,
   pgEnum,
   pgTable,
@@ -8,6 +9,29 @@ import {
   uuid,
   varchar,
 } from "drizzle-orm/pg-core";
+
+export const users = pgTable("users", {
+  id: varchar("id", { length: 256 }).primaryKey(),
+  name: text("name").notNull(),
+  email: text("email").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+export type User = typeof users.$inferSelect;
+export type SafeUser = Omit<User, "createdAt"> & {
+  createdAt: string;
+};
+
+export const user_settings = pgTable("user_settings", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: varchar("user_id", { length: 256 })
+    .notNull()
+    .references(() => users.id),
+  messageCount: integer("message_count").notNull().default(0),
+  freeChats: integer("free_chats").notNull().default(0),
+  freeMessages: integer("free_messages").notNull().default(0),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+export type UserSettings = typeof user_settings.$inferSelect;
 
 export const userSystemEnum = pgEnum("user_system_enum", ["system", "user"]);
 
@@ -19,7 +43,6 @@ export const chats = pgTable("chats", {
   userId: varchar("user_id", { length: 256 }).notNull(),
   fileKey: text("file_key").notNull(),
 });
-
 export type SafeChat = Omit<typeof chats.$inferSelect, "createdAt"> & {
   createdAt: string;
 };
@@ -33,7 +56,6 @@ export const messages = pgTable("messages", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
   role: userSystemEnum("role").notNull(),
 });
-
 export type Message = typeof messages.$inferSelect;
 export type SafeMessage = Omit<Message, "createdAt"> & {
   createdAt: string;
@@ -63,7 +85,6 @@ export const sources = pgTable("sources", {
   data: json("data").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
-
 export type SafeSource = Omit<typeof sources.$inferSelect, "createdAt"> & {
   createdAt: string;
 };

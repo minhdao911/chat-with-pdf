@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "db-push": "drizzle-kit push:pg"
+    "db-push": "drizzle-kit push:pg",
+    "ngrok": "ngrok http http://localhost:3000"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.670.0",
@@ -44,6 +45,7 @@
     "react-icons": "^4.11.0",
     "resend": "^4.6.0",
     "stripe": "^14.1.0",
+    "svix": "^1.68.0",
     "tailwind-merge": "^1.14.0",
     "tailwindcss-animate": "^1.0.7"
   },
