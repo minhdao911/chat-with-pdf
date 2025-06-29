@@ -2,7 +2,7 @@ import ChatFile from "@/components/chat-file";
 import ChatInterface from "@/components/chat-interface";
 import ChatSideBar from "@/components/chat-sidebar";
 import PdfViewer from "@/components/pdf-viewer";
-import { checkAdmin, checkSubscription } from "@lib/account";
+import { getUserMetadata, checkSubscription } from "@lib/account";
 import { getChats, getCurrentChat } from "./_actions/chat";
 
 interface ChatPageProps {
@@ -16,7 +16,8 @@ export default async function ChatPage({ params: { chatId } }: ChatPageProps) {
   const currentChat = chatId ? getCurrentChat(chats, chatId[0]) : null;
 
   const hasValidSubscription = await checkSubscription();
-  const isAdmin = await checkAdmin();
+  const userMetadata = await getUserMetadata();
+  const isAdmin = userMetadata?.role === "admin";
   const isUsageRestricted = !hasValidSubscription && !isAdmin;
 
   return (
