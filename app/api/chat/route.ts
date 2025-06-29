@@ -73,7 +73,7 @@ export async function POST(req: Request) {
     // Return a StreamingTextResponse, which can be consumed by the client
     return streamingtextResponse;
   } catch (err) {
-    console.error("error generating reply");
+    console.error("error generating reply", err);
     return NextResponse.json({ error: err }, { status: 500 });
   }
 }

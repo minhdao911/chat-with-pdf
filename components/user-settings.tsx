@@ -4,8 +4,8 @@ import { useUser, UserButton } from "@clerk/nextjs";
 import { Moon, Sun } from "lucide-react";
 import { Switch } from "./ui/switch";
 import { useTheme } from "next-themes";
-import { useDbEvents } from "@providers/db-events-provider";
 import UsageInfo from "./usage-info";
+import ContactButton from "./contact-button";
 
 interface UserSettingsProps {
   isUsageRestricted: boolean;
@@ -19,12 +19,11 @@ const UserSettings = ({
   chatCount,
 }: UserSettingsProps) => {
   const { user } = useUser();
-  const { data } = useDbEvents();
   const { theme, setTheme } = useTheme();
   const darkmode = theme === "dark";
 
   return (
-    <div className="flex flex-col gap-5 dark:border-gray-700">
+    <div className="flex flex-col gap-5 dark:border-neutral-700">
       <UsageInfo
         isUsageRestricted={isUsageRestricted}
         messageCount={messageCount}
@@ -33,19 +32,22 @@ const UserSettings = ({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <UserButton />
-          <p className="text-gray-900 dark:text-gray-400">{user?.fullName}</p>
+          <p className="text-neutral-900 dark:text-neutral-400">
+            {user?.fullName}
+          </p>
         </div>
-        <Switch
-          checked={darkmode}
-          icon={darkmode ? Moon : Sun}
-          iconClassName={darkmode ? "text-white" : "text-gray-600"}
-          onClick={() => setTheme(darkmode ? "light" : "dark")}
-        />
+        <div className="flex items-center gap-2">
+          <Switch
+            checked={darkmode}
+            icon={darkmode ? Moon : Sun}
+            iconClassName={darkmode ? "text-white" : "text-neutral-600"}
+            onClick={() => setTheme(darkmode ? "light" : "dark")}
+          />
+          <ContactButton />
+        </div>
       </div>
     </div>
   );
 };
 
 export default UserSettings;
-
-const Usage = () => {};

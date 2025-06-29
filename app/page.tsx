@@ -13,16 +13,16 @@ export default function Home() {
         </Link>
         <div className="w-full h-full flex flex-col items-center justify-center gap-3 px-5">
           <div className="flex flex-col items-center gap-2">
-            <h1 className="text-5xl font-semibold text-gray-900">
+            <h1 className="text-5xl font-semibold text-neutral-900">
               Chat with PDF
             </h1>
-            <p className="max-w-2xl text-gray-700">
+            <p className="max-w-2xl text-neutral-700">
               Simply ask questions and get instant answers from the PDF, making
               information retrieval effortless and efficient. Say hello to a
               smarter way of interacting with your documents.
             </p>
           </div>
-          <Button className="bg-black/90 text-gray-100 hover:bg-black/80">
+          <Button className="bg-black/90 text-neutral-100 hover:bg-black/80">
             <Link href="/chat" className="flex">
               Go to chat
               <Bot className="ml-1.5" size={18} />

@@ -89,7 +89,7 @@ const FileUpload = ({ chatCount, isUsageRestricted }: FileUploadProps) => {
     <div
       {...getRootProps({
         className:
-          "w-[370px] border-dashed border-2 rounded-xl cursor-pointer bg-gray-50 p-5 py-8 flex justify-center items-center flex-col dark:bg-neutral-900 dark:border-gray-500",
+          "w-[370px] border-dashed border-2 rounded-xl cursor-pointer bg-neutral-50 p-5 py-8 flex justify-center items-center flex-col dark:bg-neutral-900 dark:border-neutral-500",
       })}
     >
       <input {...getInputProps()} />
@@ -100,11 +100,16 @@ const FileUpload = ({ chatCount, isUsageRestricted }: FileUploadProps) => {
         </>
       ) : (
         <>
-          <Upload size={30} className="text-gray-400 dark:text-gray-500 mb-1" />
+          <Upload
+            size={30}
+            className="text-neutral-400 dark:text-neutral-500 mb-1"
+          />
           {isDragActive ? (
-            <p className="text-gray-400 dark:text-gray-500">Drop PDF here</p>
+            <p className="text-neutral-400 dark:text-neutral-500">
+              Drop PDF here
+            </p>
           ) : (
-            <p className="text-gray-400 dark:text-gray-500">
+            <p className="text-neutral-400 dark:text-neutral-500">
               Drag n drop PDF here, or click to select file
             </p>
           )}

@@ -22,7 +22,7 @@ const MessageList: FunctionComponent<MessageListProps> = ({
   if (isLoading) {
     return (
       <div className="absolute-center">
-        <Loader2 size={30} className="text-gray-600 animate-spin" />
+        <Loader2 size={30} className="text-neutral-600 animate-spin" />
       </div>
     );
   }
@@ -39,11 +39,11 @@ const MessageList: FunctionComponent<MessageListProps> = ({
         >
           <div
             className={cn(
-              "flex flex-col items-end gap-2 rounded-md px-3 py-1.5 dark:text-gray-200",
+              "flex flex-col items-end gap-2 rounded-md px-3 py-1.5 dark:text-neutral-200",
               {
                 "bg-purple-custom-300 dark:bg-purple-custom-800":
                   m.role === "user",
-                "bg-gray-100 dark:bg-gray-800": m.role !== "user",
+                "bg-neutral-100 dark:bg-neutral-800": m.role !== "user",
               }
             )}
           >

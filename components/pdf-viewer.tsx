@@ -30,7 +30,7 @@ const PdfViewer: FunctionComponent<PdfViewerProps> = ({
       }}
       handleComponent={{
         right: (
-          <div className="w-1.5 h-screen bg-gray-200 dark:bg-black/70 cursor-col-resize" />
+          <div className="w-1.5 h-screen bg-neutral-200 dark:bg-black/70 cursor-col-resize" />
         ),
       }}
     >

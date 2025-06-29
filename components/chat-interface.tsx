@@ -5,12 +5,19 @@ import toast from "react-hot-toast";
 import { FunctionComponent, useEffect, useState } from "react";
 import { useChat } from "ai/react";
 import { useQuery } from "@tanstack/react-query";
-import { Loader2, SendHorizonal } from "lucide-react";
+import { Loader2, SendHorizonal, MessageCircle, Mail } from "lucide-react";
 import { Input } from "./ui/input";
 import { SafeChat, SafeSource } from "@/lib/db/schema";
 import { Button } from "./ui/button";
 import MessageList from "./message-list";
 import { useDbEvents } from "@providers/db-events-provider";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "./ui/dialog";
 
 interface ChatInterfaceProps {
   currentChat: SafeChat;
@@ -40,6 +47,7 @@ const ChatInterface: FunctionComponent<ChatInterfaceProps> = ({
   const [sourcesForMessages, setSourcesForMessages] = useState<
     Record<string, any>
   >({});
+  const [showLimitDialog, setShowLimitDialog] = useState(false);
 
   const { messages, input, isLoading, handleInputChange, handleSubmit } =
     useChat({
@@ -87,52 +95,83 @@ const ChatInterface: FunctionComponent<ChatInterfaceProps> = ({
   }, [query.data?.sources]);
 
   return (
-    <div
-      className="relative w-full h-screen overflow-auto pt-3"
-      id="message-container"
-    >
-      <MessageList
-        messages={messages}
-        isLoading={query.isLoading}
-        data={sourcesForMessages}
-        chatId={chatId}
-      />
-      <form
-        className={`${
-          scrolled ? "sticky" : "absolute"
-        } bottom-0 left-0 right-0 flex gap-2 bg-white dark:bg-background px-3 py-5`}
-        onSubmit={(e) => {
-          if (
-            isUsageRestricted &&
-            messageCount === Number(data?.free_messages)
-          ) {
-            e.preventDefault();
-            toast("You have reached your messages limit");
-            return;
-          }
-          handleSubmit(e);
-        }}
+    <>
+      <div
+        className="relative w-full h-screen overflow-auto pt-3"
+        id="message-container"
       >
-        <Input
-          value={input}
-          placeholder="Ask any question..."
-          onChange={handleInputChange}
+        <MessageList
+          messages={messages}
+          isLoading={query.isLoading}
+          data={sourcesForMessages}
+          chatId={chatId}
         />
-        <Button
-          type="submit"
-          className="bg-purple-custom-300 dark:bg-purple-custom-800"
+        <form
+          className={`${
+            scrolled ? "sticky" : "absolute"
+          } bottom-0 left-0 right-0 flex gap-2 bg-white dark:bg-background px-3 py-5`}
+          onSubmit={(e) => {
+            if (
+              isUsageRestricted &&
+              messageCount === Number(data?.free_messages)
+            ) {
+              e.preventDefault();
+              setShowLimitDialog(true);
+              return;
+            }
+            handleSubmit(e);
+          }}
         >
-          {isLoading ? (
-            <Loader2 size={20} className="animate-spin" />
-          ) : (
-            <SendHorizonal
-              size={20}
-              className="text-gray-600 dark:text-gray-200"
-            />
-          )}
-        </Button>
-      </form>
-    </div>
+          <Input
+            value={input}
+            placeholder="Ask any question..."
+            onChange={handleInputChange}
+          />
+          <Button
+            type="submit"
+            className="bg-purple-custom-300 dark:bg-purple-custom-800"
+          >
+            {isLoading ? (
+              <Loader2 size={20} className="animate-spin" />
+            ) : (
+              <SendHorizonal
+                size={20}
+                className="text-neutral-600 dark:text-neutral-200"
+              />
+            )}
+          </Button>
+        </form>
+      </div>
+
+      <Dialog open={showLimitDialog} onOpenChange={setShowLimitDialog}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <MessageCircle className="h-5 w-5 text-purple-custom-500" />
+              Message Limit Reached
+            </DialogTitle>
+            <DialogDescription className="text-left space-y-3">
+              <p>
+                You&apos;ve reached your free message limit of{" "}
+                {data?.free_messages} messages.
+              </p>
+              <p>To continue chatting with your PDFs, you can either:</p>
+              <ul className="list-disc list-inside space-y-1 ml-4">
+                <li>Upgrade to Pro for unlimited messages</li>
+                <li>Contact us to request a limit increase</li>
+              </ul>
+              <div className="flex items-center gap-2 mt-4 p-3 bg-neutral-50 dark:bg-neutral-800 rounded-lg">
+                <Mail className="h-4 w-4 text-purple-custom-500" />
+                <span className="text-sm">
+                  Use the contact button in the bottom-right corner to reach
+                  out!
+                </span>
+              </div>
+            </DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 

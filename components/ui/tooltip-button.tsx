@@ -22,10 +22,10 @@ const TooltipButton: FunctionComponent<TooltipButtonProps> = ({
       <Tooltip>
         <TooltipTrigger>
           <Button
-            className="bg-transparent hover:bg-purple-custom-200 dark:hover:bg-gray-700 py-[3px] px-2"
+            className="bg-transparent hover:bg-purple-custom-200 dark:hover:bg-neutral-700 py-[3px] px-2"
             size="sm"
           >
-            <Icon size={15} className="text-gray-400" />
+            <Icon size={15} className="text-neutral-400" />
           </Button>
         </TooltipTrigger>
         <TooltipContent>

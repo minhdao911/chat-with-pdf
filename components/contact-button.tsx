@@ -69,20 +69,15 @@ export default function ContactButton() {
     setHasAttemptedSubmit(true);
   };
 
-  const handleClose = () => {
-    reset();
-    setIsOpen(false);
-    setHasAttemptedSubmit(false);
-  };
-
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button
           size="icon"
-          className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-shadow z-50"
+          variant="ghost"
+          className="h-auto w-auto p-2 rounded-full hover:bg-purple-custom-300/50 dark:hover:bg-neutral-800 transition-colors"
         >
-          <MessageCircle className="h-6 w-6" />
+          <MessageCircle className="h-4 w-4 text-neutral-600 dark:text-neutral-400 transition-colors" />
           <span className="sr-only">Contact</span>
         </Button>
       </DialogTrigger>

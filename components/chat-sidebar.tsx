@@ -36,7 +36,7 @@ const ChatSideBar = ({
   });
 
   return (
-    <div className="w-72 h-screen shrink-0 bg-purple-custom-50 dark:bg-gray-800 px-4 py-5 flex flex-col justify-between">
+    <div className="w-72 h-screen shrink-0 bg-purple-custom-50 dark:bg-neutral-900 px-4 py-5 flex flex-col justify-between">
       <div>
         <NewChatButton onClick={() => router.push("/chat")} />
         <div className="w-full mt-3 flex flex-col gap-1">
@@ -45,10 +45,10 @@ const ChatSideBar = ({
             return (
               <li
                 key={chat.id}
-                className={`w-full group flex justify-between gap-2 items-center p-3 rounded-md cursor-pointer hover:bg-purple-custom-300 hover:text-gray-800 dark:hover:bg-gray-900 dark:hover:text-gray-300 ${
+                className={`w-full group flex justify-between gap-2 items-center p-3 rounded-md cursor-pointer hover:bg-purple-custom-300 hover:text-neutral-800 dark:hover:bg-neutral-900 dark:hover:text-neutral-300 ${
                   selected
-                    ? "bg-purple-custom-300 text-gray-800 dark:bg-gray-950 dark:text-gray-300"
-                    : "text-gray-700 dark:text-gray-400"
+                    ? "bg-purple-custom-300 text-neutral-800 dark:bg-neutral-800 dark:text-neutral-300"
+                    : "text-neutral-700 dark:text-neutral-400"
                 }`}
                 onClick={() => router.push(`/chat/${chat.id}`)}
               >
@@ -58,7 +58,7 @@ const ChatSideBar = ({
                 </div>
                 <Button
                   variant="ghost"
-                  className="group-hover:block hidden h-fit shrink-0 p-1 bg-purple-custom-100 dark:bg-gray-600 hover:bg-purple-custom-200 hover:dark:bg-gray-700 rounded"
+                  className="group-hover:block hidden h-fit shrink-0 p-1 bg-purple-custom-100 dark:bg-neutral-600 hover:bg-purple-custom-200 hover:dark:bg-neutral-700 rounded"
                   disabled={isPending}
                   onClick={async (e) => {
                     e.stopPropagation();
@@ -103,7 +103,7 @@ const NewChatButton = ({ onClick }: NewChatButtonProps) => {
   return (
     <Button
       variant="secondary"
-      className="w-full bg-white dark:bg-gray-700 text-gray-600 dark:text-gray-300 shadow"
+      className="w-full bg-white dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 shadow"
       onClick={onClick}
     >
       <PlusCircle size={20} className="mr-1.5" />

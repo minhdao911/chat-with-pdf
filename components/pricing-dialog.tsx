@@ -54,9 +54,12 @@ const PricingDialog: FunctionComponent<PricingDialogProps> = () => {
       <DialogTrigger className="w-full">
         <Button
           variant="ghost"
-          className="w-full text-gray-900 bg-purple-custom-400 hover:bg-purple-custom-500/70 dark:bg-gray-600 dark:text-gray-300 dark:hover:bg-gray-800/50"
+          className="w-full text-neutral-900 bg-purple-custom-400 hover:bg-purple-custom-500/70 dark:bg-neutral-600 dark:text-neutral-300 dark:hover:bg-neutral-800/50"
         >
-          <Crown size={20} className="text-gray-900 dark:text-gray-300 mr-2" />
+          <Crown
+            size={20}
+            className="text-neutral-900 dark:text-neutral-300 mr-2"
+          />
           Upgrade to Pro
         </Button>
       </DialogTrigger>
@@ -100,9 +103,9 @@ const PricingOption = ({
   onClick,
 }: PricingOptionProps) => {
   return (
-    <div className="flex flex-col w-64 gap-4 dark:text-gray-300 text-gray-700">
+    <div className="flex flex-col w-64 gap-4 dark:text-neutral-300 text-neutral-700">
       <div>
-        <p className="font-semibold dark:text-gray-100 text-gray-900">
+        <p className="font-semibold dark:text-neutral-100 text-neutral-900">
           {planName}
         </p>
         <p>USD ${price}/month</p>
@@ -122,7 +125,7 @@ const PricingOption = ({
             {loading ? (
               <Loader2
                 size={20}
-                className="text-gray-200 dark:text-gray-800 animate-spin"
+                className="text-neutral-200 dark:text-neutral-800 animate-spin"
               />
             ) : (
               "Upgrade to Pro"

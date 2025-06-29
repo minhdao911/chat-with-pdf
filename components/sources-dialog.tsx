@@ -36,10 +36,10 @@ const SourcesDialog: FunctionComponent<SourcesDialogProps> = ({ sources }) => {
                 index === sources.length - 1 ? "" : "border-b"
               } py-3`}
             >
-              <p className="dark:text-gray-100 text-gray-900 mb-1">
+              <p className="dark:text-neutral-100 text-neutral-900 mb-1">
                 Page {pageNumber}
               </p>
-              <p className="text-sm dark:text-gray-400 text-gray-500">
+              <p className="text-sm dark:text-neutral-400 text-neutral-500">
                 {content}
               </p>
             </div>

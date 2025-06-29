@@ -2,7 +2,6 @@ import ChatFile from "@/components/chat-file";
 import ChatInterface from "@/components/chat-interface";
 import ChatSideBar from "@/components/chat-sidebar";
 import PdfViewer from "@/components/pdf-viewer";
-import ContactButton from "@/components/contact-button";
 import { getUserMetadata, checkSubscription } from "@lib/account";
 import { getChats, getCurrentChat } from "./_actions/chat";
 
@@ -44,7 +43,6 @@ export default async function ChatPage({ params: { chatId } }: ChatPageProps) {
           isUsageRestricted={isUsageRestricted}
         />
       )}
-      <ContactButton />
     </div>
   );
 }
