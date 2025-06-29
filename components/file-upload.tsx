@@ -45,8 +45,8 @@ const FileUpload = ({ chatCount, isUsageRestricted }: FileUploadProps) => {
       }
 
       const file = acceptedFiles[0];
-      if (file.size > 10 * 1024 * 1024) {
-        // bigger than 10mb
+      if (file.size > 5 * 1024 * 1024) {
+        // bigger than 5mb
         toast.error("File too large");
         return;
       } else {
