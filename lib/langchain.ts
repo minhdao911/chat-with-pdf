@@ -15,18 +15,26 @@ import { ANSWER_TEMPLATE, QUESTION_TEMPLATE } from "./prompts";
 
 const openAIApiKey = process.env.OPENAI_API_KEY;
 
-const streamingModel = new ChatOpenAI({
-  openAIApiKey,
-  modelName: "gpt-3.5-turbo",
-  streaming: true,
-  temperature: 0,
-});
+function getModelName(messageCount: number): string {
+  return messageCount < 20 ? "gpt-4.1-mini" : "gpt-4o-mini";
+}
 
-const nonStreamingModel = new ChatOpenAI({
-  openAIApiKey,
-  modelName: "gpt-3.5-turbo",
-  temperature: 0,
-});
+function createStreamingModel(messageCount: number) {
+  return new ChatOpenAI({
+    openAIApiKey,
+    modelName: getModelName(messageCount),
+    streaming: true,
+    temperature: 0,
+  });
+}
+
+function createNonStreamingModel(messageCount: number) {
+  return new ChatOpenAI({
+    openAIApiKey,
+    modelName: getModelName(messageCount),
+    temperature: 0,
+  });
+}
 
 type retrievalArgs = {
   question: string;
@@ -53,13 +61,14 @@ export async function retrieval({
 }: retrievalArgs) {
   const sanitizedQuestion = question.trim().replaceAll("\n", " ");
   const vectorstore = getVectorStore(fileKey);
+  const messageCount = previousMessages.length;
 
   /**
    * https://js.langchain.com/docs/expression_language/cookbook/retrieval
    */
   const standaloneQuestionChain = RunnableSequence.from([
     questionPrompt,
-    nonStreamingModel,
+    createNonStreamingModel(messageCount),
     new StringOutputParser(),
   ]);
 
@@ -90,7 +99,7 @@ export async function retrieval({
       question: (input) => input.question,
     },
     answerPrompt,
-    streamingModel,
+    createStreamingModel(messageCount),
   ]);
 
   const conversationalRetrievalQAChain = RunnableSequence.from([
