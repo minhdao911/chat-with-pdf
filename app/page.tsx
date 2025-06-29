@@ -16,10 +16,9 @@ export default function Home() {
             <h1 className="text-5xl font-semibold text-neutral-900">
               Chat with PDF
             </h1>
-            <p className="max-w-2xl text-neutral-700">
-              Simply ask questions and get instant answers from the PDF, making
-              information retrieval effortless and efficient. Say hello to a
-              smarter way of interacting with your documents.
+            <p className="max-w-2xl text-neutral-700 text-center">
+              Ask questions and receive instant responses from your PDFs. It's
+              an easy-to-use tool for quick information retrieval.
             </p>
           </div>
           <Button className="bg-black/90 text-neutral-100 hover:bg-black/80">

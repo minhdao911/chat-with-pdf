@@ -85,17 +85,17 @@ const ChatInterface: FunctionComponent<ChatInterfaceProps> = ({
     }
   }, [messages]);
 
-  useEffect(() => {
-    if (query.data?.sources) {
-      const msgSources = query.data?.sources
-        ? (query.data?.sources as SafeSource[]).reduce(
-            (a, v) => ({ ...a, [v.messageId]: v.data }),
-            {}
-          )
-        : {};
-      setSourcesForMessages(msgSources);
-    }
-  }, [query.data?.sources]);
+  // useEffect(() => {
+  //   if (query.data?.sources) {
+  //     const msgSources = query.data?.sources
+  //       ? (query.data?.sources as SafeSource[]).reduce(
+  //           (a, v) => ({ ...a, [v.messageId]: v.data }),
+  //           {}
+  //         )
+  //       : {};
+  //     setSourcesForMessages(msgSources);
+  //   }
+  // }, [query.data?.sources]);
 
   return (
     <>
@@ -106,7 +106,7 @@ const ChatInterface: FunctionComponent<ChatInterfaceProps> = ({
         <MessageList
           messages={messages}
           isLoading={query.isLoading}
-          data={sourcesForMessages}
+          // data={sourcesForMessages}
           chatId={chatId}
         />
         <form

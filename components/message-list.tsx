@@ -5,19 +5,19 @@ import { Message } from "ai";
 import { Loader2, Clipboard } from "lucide-react";
 import { FunctionComponent } from "react";
 import TooltipButton from "./ui/tooltip-button";
-import SourcesDialog from "./sources-dialog";
+// import SourcesDialog from "./sources-dialog";
 
 interface MessageListProps {
   messages: Message[];
   chatId: string;
   isLoading: boolean;
-  data: Record<string, any>;
+  // data: Record<string, any>;
 }
 
 const MessageList: FunctionComponent<MessageListProps> = ({
   messages,
   isLoading,
-  data,
+  // data,
 }) => {
   if (isLoading) {
     return (
@@ -50,7 +50,7 @@ const MessageList: FunctionComponent<MessageListProps> = ({
             {m.content}
             {m.role !== "user" && (
               <div className="flex">
-                <SourcesDialog sources={data[m.id] ?? data[i]} />
+                {/* <SourcesDialog sources={data[m.id] ?? data[i]} /> */}
                 <TooltipButton
                   icon={Clipboard}
                   tooltipText="Copy to clipboard"
