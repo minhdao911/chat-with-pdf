@@ -24,7 +24,11 @@ export async function GET(req: Request) {
 
       client.on("notification", (msg) => {
         console.log("Table change detected:", msg.payload);
-        controller.enqueue(`data: ${msg.payload}\n\n`);
+        try {
+          controller.enqueue(`data: ${msg.payload}\n\n`);
+        } catch (error) {
+          console.error("Error enqueuing data:", error);
+        }
       });
 
       req.signal.addEventListener("abort", () => {

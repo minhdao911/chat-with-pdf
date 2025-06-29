@@ -3,8 +3,8 @@
 import { auth } from "@clerk/nextjs/server";
 import { eq } from "drizzle-orm";
 import { db } from "./db";
-import { feature_flags, subscriptions } from "./db/schema";
-import { FeatureFlags } from "@constants";
+import { app_settings, feature_flags, subscriptions } from "./db/schema";
+import { AppSettings, FeatureFlags } from "@types";
 
 const DAY_IN_MS = 24 * 60 * 60 * 1000;
 
@@ -32,12 +32,12 @@ export async function checkSubscription() {
   }
 }
 
-export const checkAdmin = async () => {
+export const getUserMetadata = async () => {
   try {
     const { sessionClaims } = auth();
-    return sessionClaims?.metadata.role === "admin";
+    return sessionClaims?.metadata;
   } catch (err) {
-    return false;
+    return null;
   }
 };
 
@@ -55,6 +55,23 @@ export const getFeatureFlags = async (): Promise<Record<
         ...acc,
         [curr.flag as FeatureFlags]: curr.enabled,
       };
+    }, {} as any);
+  } catch (err) {
+    return null;
+  }
+};
+
+export const getAppSettings = async (): Promise<Record<
+  AppSettings,
+  string
+> | null> => {
+  try {
+    const { userId } = auth();
+    if (!userId) return null;
+
+    const settings = await db.select().from(app_settings);
+    return settings.reduce((acc, curr) => {
+      return { ...acc, [curr.name as AppSettings]: curr.value };
     }, {} as any);
   } catch (err) {
     return null;

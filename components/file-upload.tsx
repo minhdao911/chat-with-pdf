@@ -8,7 +8,7 @@ import { uploadToS3 } from "@/lib/s3";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { Loader2, Upload } from "lucide-react";
-import { FREE_MAX_CHATS } from "@/constants";
+import { useDbEvents } from "@providers/db-events-provider";
 
 interface FileUploadProps {
   isUsageRestricted: boolean;
@@ -17,6 +17,8 @@ interface FileUploadProps {
 
 const FileUpload = ({ chatCount, isUsageRestricted }: FileUploadProps) => {
   const router = useRouter();
+  const { data } = useDbEvents();
+
   const [isUploading, setIsUploading] = useState(false);
 
   const { mutate, isPending } = useMutation({
@@ -37,7 +39,7 @@ const FileUpload = ({ chatCount, isUsageRestricted }: FileUploadProps) => {
 
   const onDrop = useCallback(
     async (acceptedFiles: any) => {
-      if (isUsageRestricted && chatCount === FREE_MAX_CHATS) {
+      if (isUsageRestricted && chatCount === Number(data?.free_chats)) {
         toast("You have reached your file uploads limit");
         return;
       }

@@ -10,7 +10,7 @@ import { Input } from "./ui/input";
 import { SafeChat, SafeSource } from "@/lib/db/schema";
 import { Button } from "./ui/button";
 import MessageList from "./message-list";
-import { FREE_MAX_MESSAGES } from "@/constants";
+import { useDbEvents } from "@providers/db-events-provider";
 
 interface ChatInterfaceProps {
   currentChat: SafeChat;
@@ -24,6 +24,7 @@ const ChatInterface: FunctionComponent<ChatInterfaceProps> = ({
   messageCount,
 }) => {
   const chatId = currentChat.id;
+  const { data } = useDbEvents();
 
   const query = useQuery({
     queryKey: ["chat", chatId],
@@ -101,7 +102,10 @@ const ChatInterface: FunctionComponent<ChatInterfaceProps> = ({
           scrolled ? "sticky" : "absolute"
         } bottom-0 left-0 right-0 flex gap-2 bg-white dark:bg-background px-3 py-5`}
         onSubmit={(e) => {
-          if (isUsageRestricted && messageCount === FREE_MAX_MESSAGES) {
+          if (
+            isUsageRestricted &&
+            messageCount === Number(data?.free_messages)
+          ) {
             e.preventDefault();
             toast("You have reached your messages limit");
             return;

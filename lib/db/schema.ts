@@ -73,3 +73,10 @@ export const feature_flags = pgTable("feature_flags", {
   flag: varchar("flag", { length: 256 }).notNull(),
   enabled: boolean("enabled").default(false),
 });
+
+export const app_settings = pgTable("app_settings", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  name: varchar("name", { length: 256 }).notNull(),
+  value: text("value").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
