@@ -39,8 +39,10 @@
     "react": "latest",
     "react-dom": "latest",
     "react-dropzone": "^14.2.3",
+    "react-hook-form": "^7.59.0",
     "react-hot-toast": "^2.4.1",
     "react-icons": "^4.11.0",
+    "resend": "^4.6.0",
     "stripe": "^14.1.0",
     "tailwind-merge": "^1.14.0",
     "tailwindcss-animate": "^1.0.7"
