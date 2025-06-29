@@ -44,6 +44,7 @@ export default async function ChatPage({ params: { chatId } }: ChatPageProps) {
             isUsageRestricted={isUsageRestricted}
             currentChat={currentChat}
             messageCount={userSettings?.messageCount || messages.length}
+            isAdmin={isAdmin}
           />
         </>
       ) : (

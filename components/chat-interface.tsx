@@ -22,12 +22,14 @@ interface ChatInterfaceProps {
   currentChat: SafeChat;
   isUsageRestricted: boolean;
   messageCount: number;
+  isAdmin: boolean;
 }
 
 const ChatInterface: FunctionComponent<ChatInterfaceProps> = ({
   currentChat,
   isUsageRestricted,
   messageCount,
+  isAdmin,
 }) => {
   const chatId = currentChat.id;
   const { data } = useDbEvents();
@@ -54,6 +56,7 @@ const ChatInterface: FunctionComponent<ChatInterfaceProps> = ({
         fileKey: currentChat.fileKey,
         chatId,
         messageCount,
+        isAdmin,
       },
       initialMessages: query.data?.messages || [],
       onResponse: (response) => {
