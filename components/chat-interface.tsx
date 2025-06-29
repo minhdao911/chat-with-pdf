@@ -48,7 +48,7 @@ const ChatInterface: FunctionComponent<ChatInterfaceProps> = ({
   const [sourcesForMessages, setSourcesForMessages] = useState<
     Record<string, any>
   >({});
-  const [showLimitDialog, setShowLimitDialog] = useState(false);
+  const [showLimitDialog, setShowLimitDialog] = useState(true);
 
   const { messages, input, isLoading, handleInputChange, handleSubmit } =
     useChat({
@@ -150,25 +150,29 @@ const ChatInterface: FunctionComponent<ChatInterfaceProps> = ({
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <MessageCircle className="h-5 w-5 text-purple-custom-500" />
+              {/* <MessageCircle className="h-5 w-5 text-purple-custom-500" /> */}
               Message Limit Reached
             </DialogTitle>
-            <DialogDescription className="text-left space-y-3">
-              <p>
-                You&apos;ve reached your free message limit of{" "}
-                {data?.free_messages} messages.
-              </p>
-              <p>To continue chatting with your PDFs, you can either:</p>
-              <ul className="list-disc list-inside space-y-1 ml-4">
-                <li>Upgrade to Pro for unlimited messages</li>
-                <li>Contact us to request a limit increase</li>
-              </ul>
-              <div className="flex items-center gap-2 mt-4 p-3 bg-neutral-50 dark:bg-neutral-800 rounded-lg">
-                <Mail className="h-4 w-4 text-purple-custom-500" />
-                <span className="text-sm">
-                  Use the contact button in the bottom-right corner to reach
-                  out!
-                </span>
+            <DialogDescription className="text-left">
+              <div className="flex flex-col gap-3 mt-3">
+                <p>
+                  You&apos;ve reached your free message limit of{" "}
+                  <span className="font-semibold">
+                    {data?.free_messages} messages.
+                  </span>
+                </p>
+                <p>
+                  Thank you for your interest in the product. Feel free to drop
+                  me a line to increase the limit if you want to continue trying
+                  out.
+                </p>
+                <div className="flex items-start gap-2 p-3 bg-neutral-50 dark:bg-neutral-800 rounded-lg">
+                  <Mail size={18} className="text-purple-custom-500" />
+                  <span className="text-sm">
+                    Use the contact button in the bottom-right corner of the
+                    sidebar to reach out!
+                  </span>
+                </div>
               </div>
             </DialogDescription>
           </DialogHeader>

@@ -9,7 +9,7 @@ if (!RESEND_API_KEY || !MY_EMAIL) {
 
 const resend = new Resend(RESEND_API_KEY);
 
-export const validateEmail = (email: string) => {
+const validateEmail = (email: string) => {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 };
 
