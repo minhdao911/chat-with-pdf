@@ -5,6 +5,8 @@ import { currentUser } from "@clerk/nextjs/server";
 import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
 
+export const dynamic = "force-dynamic";
+
 const returnUrl = process.env.NEXT_BASE_URL;
 const priceId = process.env.STRIPE_PRICE_ID;
 
