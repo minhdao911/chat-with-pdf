@@ -1,6 +1,6 @@
 "use client";
 
-import { HelpCircle } from "lucide-react";
+import { HelpCircle, Mail } from "lucide-react";
 import { useDbEvents } from "@providers/db-events-provider";
 import PricingDialog from "./pricing-dialog";
 import {
@@ -82,22 +82,29 @@ const UsageInfo = ({
             <DialogDescription className="text-left space-y-3 pt-2">
               <p>
                 You&apos;re currently using the{" "}
-                <span className="font-semibold">beta version</span> of AskPDF
-                service. During the beta period, usage is limited to help manage
-                server resources and gather feedback.
+                <span className="font-semibold">beta version</span> of AskPDF.
+                During the beta period, usage is limited to help manage server
+                resources and gather feedback.
               </p>
 
-              <div className="border-t pt-3">
-                <p className="font-medium text-neutral-900 dark:text-neutral-100 mb-2">
+              <div className="border-t pt-3 flex flex-col gap-3">
+                <p className="font-medium text-neutral-900 dark:text-neutral-100">
                   Need more usage?
                 </p>
                 <p className="text-sm">
                   If you need higher limits or want to provide feedback about
-                  the service, please don&apos;t hesitate to contact me.
+                  the product, please don&apos;t hesitate to contact me.
                 </p>
+                <div className="flex items-start gap-2 p-3 bg-neutral-50 dark:bg-neutral-800 rounded-lg">
+                  <Mail size={18} className="text-purple-custom-500" />
+                  <span className="text-sm">
+                    Use the contact button in the bottom-right corner of the
+                    sidebar to reach out!
+                  </span>
+                </div>
               </div>
 
-              <p className="text-xs text-neutral-600 dark:text-neutral-400">
+              <p className="text-sm text-neutral-600 dark:text-neutral-400">
                 Thank you for your interest! 🙏
               </p>
             </DialogDescription>

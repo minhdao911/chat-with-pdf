@@ -17,6 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "react-hot-toast";
 import axios from "axios";
+import { useUser } from "@clerk/nextjs";
 
 interface ContactFormData {
   name: string;
@@ -25,6 +26,8 @@ interface ContactFormData {
 }
 
 export default function ContactButton() {
+  const { user } = useUser();
+
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hasAttemptedSubmit, setHasAttemptedSubmit] = useState(false);
@@ -33,7 +36,7 @@ export default function ContactButton() {
     register,
     handleSubmit,
     reset,
-    formState: { errors, isValid },
+    formState: { errors },
   } = useForm<ContactFormData>({
     defaultValues: {
       name: "",
@@ -46,7 +49,10 @@ export default function ContactButton() {
     setIsSubmitting(true);
 
     try {
-      const response = await axios.post("/api/send-email", data);
+      const response = await axios.post("/api/send-email", {
+        ...data,
+        userId: user?.id,
+      });
       if (response.status === 200) {
         reset();
         setIsOpen(false);

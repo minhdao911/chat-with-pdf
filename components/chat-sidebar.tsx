@@ -103,7 +103,7 @@ const NewChatButton = ({ onClick }: NewChatButtonProps) => {
   return (
     <Button
       variant="secondary"
-      className="w-full bg-white dark:bg-neutral-700 text-neutral-600 dark:text-neutral-300 shadow"
+      className="w-full bg-white dark:bg-neutral-700 dark:hover:bg-neutral-600 text-neutral-600 dark:text-neutral-300 shadow"
       onClick={onClick}
     >
       <PlusCircle size={20} className="mr-1.5" />

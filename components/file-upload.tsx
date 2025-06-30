@@ -101,18 +101,12 @@ const FileUpload = ({ chatCount, isUsageRestricted }: FileUploadProps) => {
       ) : (
         <>
           <Upload
-            size={30}
+            size={22}
             className="text-neutral-400 dark:text-neutral-500 mb-1"
           />
-          {isDragActive ? (
-            <p className="text-neutral-400 dark:text-neutral-500">
-              Drop PDF here
-            </p>
-          ) : (
-            <p className="text-neutral-400 dark:text-neutral-500">
-              Drag n drop PDF here, or click to select file
-            </p>
-          )}
+          <p className="text-neutral-400 dark:text-neutral-500">
+            Drop your PDF here{isDragActive ? "" : " or click to select file"}
+          </p>
         </>
       )}
     </div>

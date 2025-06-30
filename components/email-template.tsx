@@ -2,9 +2,15 @@ interface EmailTemplateProps {
   name: string;
   email: string;
   message: string;
+  userId: string;
 }
 
-const EmailTemplate = ({ name, email, message }: EmailTemplateProps) => {
+const EmailTemplate = ({
+  name,
+  email,
+  message,
+  userId,
+}: EmailTemplateProps) => {
   const paragraphs = message.split(/\n+/g);
   return (
     <div>
@@ -13,6 +19,9 @@ const EmailTemplate = ({ name, email, message }: EmailTemplateProps) => {
       ))}
       <p style={{ color: "gray", fontSize: "12px", marginTop: "24px" }}>
         From: {`${name} <${email}>`}
+      </p>
+      <p style={{ color: "gray", fontSize: "12px", marginTop: "24px" }}>
+        User ID: {userId}
       </p>
     </div>
   );

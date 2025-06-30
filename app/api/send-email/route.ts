@@ -15,7 +15,7 @@ const validateEmail = (email: string) => {
 
 export async function POST(request: Request) {
   try {
-    const { name, email, message } = await request.json();
+    const { name, email, message, userId } = await request.json();
 
     if (!email || !message) {
       return Response.json(
@@ -36,7 +36,7 @@ export async function POST(request: Request) {
       to: MY_EMAIL!,
       replyTo: email,
       subject: `New message from ${name ?? email}`,
-      react: EmailTemplate({ name, email, message }),
+      react: EmailTemplate({ name, email, message, userId }),
     });
 
     if (error) {
