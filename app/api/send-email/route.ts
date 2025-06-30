@@ -1,4 +1,5 @@
 import EmailTemplate from "@components/email-template";
+import { logger } from "@lib/logger";
 import { Resend } from "resend";
 
 const { RESEND_API_KEY, MY_EMAIL } = process.env;
@@ -40,13 +41,17 @@ export async function POST(request: Request) {
     });
 
     if (error) {
-      console.error(error);
+      logger.error("Error sending email:", {
+        error,
+      });
       return Response.json({ error }, { status: 500 });
     }
 
     return Response.json(data);
   } catch (error) {
-    console.error(error);
+    logger.error("Error sending email:", {
+      error,
+    });
     return Response.json({ error }, { status: 500 });
   }
 }

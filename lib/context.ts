@@ -1,6 +1,7 @@
 import { Pinecone } from "@pinecone-database/pinecone";
 import { getEmbeddings } from "./embeddings";
 import { convertToAscii } from "./utils";
+import { logger } from "./logger";
 
 export async function getMatchesFromEmbeddings(
   embeddings: number[],
@@ -23,7 +24,9 @@ export async function getMatchesFromEmbeddings(
     });
     return queryResult.matches || [];
   } catch (err) {
-    console.error("error querying embeddings", err);
+    logger.error("Error querying embeddings", {
+      error: err,
+    });
     throw err;
   }
 }

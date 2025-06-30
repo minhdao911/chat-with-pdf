@@ -12,6 +12,7 @@ import { CallbackManager } from "@langchain/core/callbacks/manager";
 import { CallbackHandlerMethods } from "@langchain/core/callbacks/base";
 import { StreamingTextResponse } from "ai";
 import { ANSWER_TEMPLATE, QUESTION_TEMPLATE } from "./prompts";
+import { logger } from "./logger";
 
 const openAIApiKey = process.env.OPENAI_API_KEY;
 const defaultModel = "gpt-4.1-mini";
@@ -128,11 +129,23 @@ export async function retrieval({
   );
 
   const documents = await documentPromise;
+
+  // Truncate content and limit number of documents to prevent large strings
+  const truncateContent = (
+    content: string,
+    maxBytes: number = 1000
+  ): string => {
+    const encoder = new TextEncoder();
+    const decoder = new TextDecoder("utf-8");
+    return decoder.decode(encoder.encode(content).slice(0, maxBytes));
+  };
+
+  const limitedDocuments = documents.slice(0, 5); // Limit to 5 documents max
   const serializedSources = Buffer.from(
     JSON.stringify(
-      documents.map((doc) => {
+      limitedDocuments.map((doc) => {
         return {
-          content: doc.pageContent,
+          content: truncateContent(doc.pageContent, 1000), // Truncate to 1KB per document
           pageNumber: doc.metadata.pageNumber,
         };
       })
@@ -162,7 +175,9 @@ function getVectorStore(fileKey: string) {
 
     return vectorStore;
   } catch (err) {
-    console.error("error while getting vector store");
+    logger.error("Error while getting vector store", {
+      error: err,
+    });
     throw err;
   }
 }

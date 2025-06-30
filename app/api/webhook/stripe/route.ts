@@ -1,6 +1,7 @@
 import { db } from "@/lib/db";
 import { subscriptions } from "@/lib/db/schema";
 import { stripe } from "@/lib/stripe";
+import { logger } from "@lib/logger";
 import { eq } from "drizzle-orm";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
@@ -20,7 +21,9 @@ export async function POST(req: Request) {
       process.env.STRIPE_WEBHOOK_SIGNING_SECRET!
     );
   } catch (err) {
-    console.error("stripe webhook error", err);
+    logger.error("Stripe webhook error", {
+      error: err,
+    });
     return new NextResponse("webhook error", { status: 400 });
   }
 
@@ -32,7 +35,7 @@ export async function POST(req: Request) {
       session.subscription as string
     );
     if (!session.metadata?.userId) {
-      console.error("stripe webhook error: no userid");
+      logger.error("Stripe webhook error: no userid");
       return new NextResponse("no userid", { status: 400 });
     }
     await db.insert(subscriptions).values({

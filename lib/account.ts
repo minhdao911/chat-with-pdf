@@ -14,6 +14,7 @@ import {
   UserSettings,
 } from "./db/schema";
 import { AppSettings, FeatureFlags } from "@types";
+import { logger } from "./logger";
 
 const DAY_IN_MS = 24 * 60 * 60 * 1000;
 
@@ -37,7 +38,9 @@ export async function checkSubscription() {
       subscription.stripeCurrentPeriodEnd?.getTime()! + DAY_IN_MS > Date.now();
     return !!isValid;
   } catch (err) {
-    console.error("Error checking subscription:", err);
+    logger.error("Error checking subscription:", {
+      error: err,
+    });
     return false;
   }
 }
@@ -47,7 +50,9 @@ export const getUserMetadata = async () => {
     const { sessionClaims } = auth();
     return sessionClaims?.metadata;
   } catch (err) {
-    console.error("Error getting user metadata:", err);
+    logger.error("Error getting user metadata:", {
+      error: err,
+    });
     return null;
   }
 };
@@ -68,7 +73,9 @@ export const getFeatureFlags = async (): Promise<Record<
       };
     }, {} as any);
   } catch (err) {
-    console.error("Error getting feature flags:", err);
+    logger.error("Error getting feature flags:", {
+      error: err,
+    });
     return null;
   }
 };
@@ -86,7 +93,9 @@ export const getAppSettings = async (): Promise<Record<
       return { ...acc, [curr.name as AppSettings]: curr.value };
     }, {} as any);
   } catch (err) {
-    console.error("Error getting app settings:", err);
+    logger.error("Error getting app settings:", {
+      error: err,
+    });
     return null;
   }
 };
@@ -95,6 +104,10 @@ export const ensureUserExists = async () => {
   try {
     const user = await currentUser();
     if (!user) return null;
+
+    logger.debug("Ensuring user exists", {
+      userId: user.id,
+    });
 
     // Check if user exists in our database
     const existingUser = await db
@@ -107,7 +120,9 @@ export const ensureUserExists = async () => {
     }
 
     // User doesn't exist, create them
-    console.log("Creating user in database:", user.id);
+    logger.info("Creating user in database:", {
+      user: user.id,
+    });
 
     const newUser = await db
       .insert(users)
@@ -151,7 +166,9 @@ export const ensureUserExists = async () => {
 
     return newUser[0];
   } catch (err) {
-    console.error("Error ensuring user exists:", err);
+    logger.error("Error ensuring user exists:", {
+      error: err,
+    });
     return null;
   }
 };
@@ -168,7 +185,9 @@ export const getUserSettings = async (): Promise<UserSettings | null> => {
 
     return settings[0] || null;
   } catch (err) {
-    console.error("Error getting user settings:", err);
+    logger.error("Error getting user settings:", {
+      error: err,
+    });
     return null;
   }
 };
@@ -183,6 +202,8 @@ export const updateUserSettings = async (settings: Partial<UserSettings>) => {
       .set(settings)
       .where(eq(user_settings.userId, userId));
   } catch (err) {
-    console.error("Error updating user settings:", err);
+    logger.error("Error updating user settings:", {
+      error: err,
+    });
   }
 };

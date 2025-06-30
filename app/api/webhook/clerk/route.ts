@@ -1,9 +1,11 @@
 import { db } from "@/lib/db";
 import { app_settings, user_settings, users } from "@/lib/db/schema";
 import { WebhookEvent } from "@clerk/nextjs/server";
+import { eq } from "drizzle-orm";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { Webhook } from "svix";
+import { logger } from "@lib/logger";
 
 export const dynamic = "force-dynamic";
 
@@ -44,7 +46,9 @@ export async function POST(req: Request) {
       "svix-signature": svix_signature,
     }) as WebhookEvent;
   } catch (err) {
-    console.error("Error verifying webhook:", err);
+    logger.error("Error verifying clerk webhook:", {
+      error: err,
+    });
     return new Response("Error occured", {
       status: 400,
     });
@@ -53,7 +57,7 @@ export async function POST(req: Request) {
   try {
     const eventType = evt.type;
     if (eventType === "user.created") {
-      console.log("User created event received");
+      logger.debug("User created event received");
       await db
         .insert(users)
         .values({
@@ -76,13 +80,30 @@ export async function POST(req: Request) {
         ),
       });
 
+      logger.debug("User created in database:", {
+        user: evt.data.id,
+      });
+
       return new NextResponse("User created successfully", { status: 201 });
     }
-    return new Response("Event not supported", { status: 200 });
+    if (eventType === "user.deleted") {
+      logger.debug("User deleted event received");
+      if (evt.data.id) {
+        await db.delete(users).where(eq(users.id, evt.data.id));
+        await db
+          .delete(user_settings)
+          .where(eq(user_settings.userId, evt.data.id));
+
+        logger.debug("User deleted from database:", {
+          user: evt.data.id,
+        });
+      }
+
+      return new NextResponse("User deleted successfully", { status: 200 });
+    }
   } catch (err) {
-    console.error("Error saving user:", err);
-    return new Response("Error creating user in database", {
-      status: 500,
+    logger.error("Error in clerk webhook:", {
+      error: err,
     });
   }
 }

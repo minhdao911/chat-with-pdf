@@ -5,6 +5,7 @@ import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import md5 from "md5";
 import { convertToAscii } from "./utils";
 import { getEmbeddings } from "./embeddings";
+import { logger } from "./logger";
 
 let pinecone: Pinecone | null = null;
 
@@ -36,13 +37,13 @@ type RecordMetadata = {
 export async function loadS3IntoPinecone(fileKey: string) {
   try {
     // 1. obtain the pdf
-    console.log("downloading s3 into file system");
-    const file_name = await downloadFromS3(fileKey);
-    if (!file_name) {
-      throw new Error("could not download from s3");
+    logger.debug("Downloading s3 into file system");
+    const fileName = await downloadFromS3(fileKey);
+    if (!fileName) {
+      throw new Error("Could not download from s3: " + fileKey);
     }
 
-    const loader = new PDFLoader(file_name);
+    const loader = new PDFLoader(fileName);
     const pages = (await loader.load()) as PDFPage[];
 
     // 2. Split and segment the pdf into smaller documents
@@ -71,13 +72,16 @@ export async function loadS3IntoPinecone(fileKey: string) {
     const client = await getPineconeClient();
     const pineconeIndex = client.index("askpdf").namespace(fileKey);
 
-    console.log("inserting vectors into pinecone");
+    logger.debug("Inserting vectors into pinecone");
 
     await pineconeIndex.upsert(vectors);
 
-    console.log("success inserting vectors to pinecone");
+    logger.debug("Success inserting vectors to pinecone");
   } catch (err) {
-    console.error("error inserting vectors to pinecone");
+    logger.error("Error inserting vectors to pinecone:", {
+      fileKey,
+      error: err,
+    });
     throw err;
   }
 }
@@ -130,9 +134,12 @@ export async function deleteVectors(fileKey: string) {
       else break;
       paginationToken = nextPageList.pagination?.next;
     }
-    console.log("success deleting vectors", fileKey);
+    logger.debug("Success deleting vectors", fileKey);
   } catch (err) {
-    console.error("error deleting vectors", err);
+    logger.error("Error deleting vectors:", {
+      fileKey,
+      error: err,
+    });
     throw err;
   }
 }

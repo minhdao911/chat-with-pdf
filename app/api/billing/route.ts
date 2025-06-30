@@ -4,6 +4,7 @@ import { stripe } from "@/lib/stripe";
 import { currentUser } from "@clerk/nextjs/server";
 import { eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
+import { logger } from "@lib/logger";
 
 export const dynamic = "force-dynamic";
 
@@ -11,13 +12,12 @@ const returnUrl = process.env.NEXT_BASE_URL;
 const priceId = process.env.STRIPE_PRICE_ID;
 
 export async function GET() {
+  const user = await currentUser();
+  if (!user) {
+    return new NextResponse("unauthorized", { status: 401 });
+  }
+
   try {
-    const user = await currentUser();
-
-    if (!user) {
-      return new NextResponse("unauthorized", { status: 401 });
-    }
-
     const _userSubscriptions = await db
       .select()
       .from(subscriptions)
@@ -49,7 +49,10 @@ export async function GET() {
     });
     return NextResponse.json({ url: stripeSession.url });
   } catch (err) {
-    console.error("error when creating checkout session", err);
+    logger.error("Error when creating checkout session:", {
+      userId: user.id,
+      error: err,
+    });
     return new NextResponse("internal server error", { status: 500 });
   }
 }

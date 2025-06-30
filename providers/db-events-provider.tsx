@@ -1,6 +1,7 @@
 "use client";
 
 import { getAppSettings, getFeatureFlags, getUserMetadata } from "@lib/account";
+import { logger } from "@lib/logger";
 import React, { createContext, useContext, useEffect, useState } from "react";
 
 export type DbEventsData = Record<string, boolean | string> | null;
@@ -74,7 +75,6 @@ export const DbEventsProvider = ({
             };
           }
 
-          console.log("eventData", eventData);
           setData((prevData: DbEventsData | null) => {
             if (onDataUpdate) {
               return onDataUpdate(eventData, prevData);
@@ -87,7 +87,6 @@ export const DbEventsProvider = ({
               !Array.isArray(prevData)
             ) {
               const newData = { ...prevData, ...eventData };
-              console.log("newData", newData);
               return newData;
             }
 
@@ -103,7 +102,10 @@ export const DbEventsProvider = ({
 
     eventSource.onerror = (error) => {
       const errorMessage = `EventSource connection failed: ${error}`;
-      console.error(errorMessage, error);
+      logger.error(errorMessage, {
+        error,
+      });
+
       setIsConnected(false);
       setError(errorMessage);
       onError?.(errorMessage);

@@ -1,6 +1,7 @@
 import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
 import fs from "fs";
 import { Readable } from "stream";
+import { logger } from "./logger";
 
 const s3Client = new S3Client({
   region: process.env.NEXT_PUBLIC_S3_BUCKET_REGION!,
@@ -25,11 +26,13 @@ export async function downloadFromS3(fileKey: string) {
     if (!stream) throw new Error("Cannot get file stream");
 
     const buffer = await getStreamBuffer(stream);
-    fs.writeFileSync(fileName, buffer);
+    fs.writeFileSync(fileName, new Uint8Array(buffer));
 
     return fileName;
   } catch (err) {
-    console.error(err);
+    logger.error("Error downloading from s3", {
+      error: err,
+    });
     return null;
   }
 }

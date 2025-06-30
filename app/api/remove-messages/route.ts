@@ -1,5 +1,6 @@
 import { db } from "@/lib/db";
 import { chats, messages, sources } from "@/lib/db/schema";
+import { logger } from "@lib/logger";
 import { deleteVectors } from "@lib/pinecone";
 import { removeFileFromS3 } from "@lib/s3";
 import { eq } from "drizzle-orm";
@@ -15,7 +16,11 @@ export async function POST(req: Request) {
     await db.delete(chats).where(eq(chats.id, chatId));
     return NextResponse.json({ chatId });
   } catch (err) {
-    console.error(err);
+    logger.error("Error removing messages:", {
+      chatId,
+      fileKey,
+      error: err,
+    });
     return new NextResponse("Internal server error", { status: 500 });
   }
 }

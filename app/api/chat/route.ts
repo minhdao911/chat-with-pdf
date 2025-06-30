@@ -5,6 +5,7 @@ import { updateUserSettings } from "@lib/account";
 import { Message } from "ai";
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
+import * as Sentry from "@sentry/nextjs";
 
 export const runtime = "edge";
 
@@ -85,7 +86,12 @@ export async function POST(req: Request) {
     // Return a StreamingTextResponse, which can be consumed by the client
     return streamingtextResponse;
   } catch (err) {
-    console.error("error generating reply", err);
+    Sentry.captureException("Error generating reply:", {
+      level: "error",
+      extra: {
+        error: err,
+      },
+    });
     return NextResponse.json({ error: err }, { status: 500 });
   }
 }

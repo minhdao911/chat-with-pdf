@@ -3,17 +3,18 @@ import { chats } from "@/lib/db/schema";
 import { loadS3IntoPinecone } from "@/lib/pinecone";
 import { getS3Url } from "@/lib/s3";
 import { auth } from "@clerk/nextjs/server";
+import { logger } from "@lib/logger";
 import { NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
-  try {
-    const { userId } = auth();
-    if (!userId) {
-      return NextResponse.json({ error: "unauthorized" }, { status: 401 });
-    }
+  const { userId } = auth();
+  if (!userId) {
+    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  }
 
+  try {
     const body = await req.json();
     const { file_key, file_name } = body;
 
@@ -35,7 +36,10 @@ export async function POST(req: Request) {
       { status: 200 }
     );
   } catch (error) {
-    console.error(error);
+    logger.error("Error creating chat:", {
+      userId,
+      error,
+    });
     return NextResponse.json({
       error: "internal server error",
       status: 500,

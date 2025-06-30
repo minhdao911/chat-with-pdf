@@ -6,7 +6,6 @@ import {
   getUserMetadata,
   checkSubscription,
   getUserSettings,
-  ensureUserExists,
 } from "@lib/account";
 import { getChats, getCurrentChat } from "./_actions/chat";
 
@@ -17,9 +16,6 @@ interface ChatPageProps {
 }
 
 export default async function ChatPage({ params: { chatId } }: ChatPageProps) {
-  // Ensure user exists in database after login
-  await ensureUserExists();
-
   const chats = await getChats();
   const currentChat = chatId ? getCurrentChat(chats, chatId[0]) : null;
   const hasValidSubscription = await checkSubscription();

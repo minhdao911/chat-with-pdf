@@ -9,6 +9,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { Loader2, Upload } from "lucide-react";
 import { useDbEvents } from "@providers/db-events-provider";
+import { logger } from "@lib/logger";
 
 interface FileUploadProps {
   isUsageRestricted: boolean;
@@ -67,7 +68,9 @@ const FileUpload = ({ chatCount, isUsageRestricted }: FileUploadProps) => {
             },
           });
         } catch (error) {
-          console.error(error);
+          logger.error("Error uploading file:", {
+            error,
+          });
         } finally {
           setIsUploading(false);
         }
