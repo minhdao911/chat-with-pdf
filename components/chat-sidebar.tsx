@@ -1,6 +1,6 @@
 "use client";
 
-import { MessageSquare, PlusCircle, Trash } from "lucide-react";
+import { MessageSquarePlus, Trash } from "lucide-react";
 import { Button } from "./ui/button";
 import { SafeChat } from "@/lib/db/schema";
 import { useRouter } from "next/navigation";
@@ -19,8 +19,8 @@ interface ChatSideBarProps {
 
 const ChatSideBar = ({
   chats,
-  isUsageRestricted,
   currentChatId,
+  isUsageRestricted,
   messageCount,
 }: ChatSideBarProps) => {
   const router = useRouter();
@@ -45,40 +45,39 @@ const ChatSideBar = ({
             return (
               <li
                 key={chat.id}
-                className={`w-full group flex justify-between gap-2 items-center p-3 rounded-md cursor-pointer hover:bg-purple-custom-300 hover:text-neutral-800 dark:hover:bg-neutral-900 dark:hover:text-neutral-300 ${
+                className={`w-full group flex justify-between gap-2 items-center p-3 rounded-md cursor-pointer hover:bg-purple-custom-300/50 hover:text-neutral-800 dark:hover:bg-neutral-800 dark:hover:text-neutral-300 ${
                   selected
-                    ? "bg-purple-custom-300 text-neutral-800 dark:bg-neutral-800 dark:text-neutral-300"
+                    ? "bg-purple-custom-300/50 text-neutral-800 dark:bg-neutral-800 dark:text-neutral-300"
                     : "text-neutral-700 dark:text-neutral-400"
                 }`}
                 onClick={() => router.push(`/chat/${chat.id}`)}
               >
-                <div className="flex items-center w-[80%]">
-                  <MessageSquare size={20} className="shrink-0 mr-2" />
-                  <p className="truncate">{chat.pdfName}</p>
+                <div className="flex items-center gap-1 w-full">
+                  <p className="truncate w-[90%]">{chat.pdfName}</p>
+                  <Button
+                    variant="ghost"
+                    className="group-hover:block hidden h-fit shrink-0 p-1 bg-purple-custom-100 dark:bg-neutral-600 hover:bg-purple-custom-300 hover:dark:bg-neutral-700 rounded"
+                    disabled={isPending}
+                    onClick={async (e) => {
+                      e.stopPropagation();
+                      mutate(chat, {
+                        onSuccess: ({ chatId }: { chatId: string }) => {
+                          toast.success("Delete chat successfully");
+                          if (chatId === currentChatId) {
+                            router.push("/chat");
+                          } else {
+                            router.refresh();
+                          }
+                        },
+                        onError: () => {
+                          toast.error("Error deleting chat");
+                        },
+                      });
+                    }}
+                  >
+                    <Trash size={15} />
+                  </Button>
                 </div>
-                <Button
-                  variant="ghost"
-                  className="group-hover:block hidden h-fit shrink-0 p-1 bg-purple-custom-100 dark:bg-neutral-600 hover:bg-purple-custom-200 hover:dark:bg-neutral-700 rounded"
-                  disabled={isPending}
-                  onClick={async (e) => {
-                    e.stopPropagation();
-                    mutate(chat, {
-                      onSuccess: ({ chatId }: { chatId: string }) => {
-                        toast.success("Delete chat successfully");
-                        if (chatId === currentChatId) {
-                          router.push("/chat");
-                        } else {
-                          router.refresh();
-                        }
-                      },
-                      onError: () => {
-                        toast.error("Error deleting chat");
-                      },
-                    });
-                  }}
-                >
-                  <Trash size={15} />
-                </Button>
               </li>
             );
           })}
@@ -106,8 +105,8 @@ const NewChatButton = ({ onClick }: NewChatButtonProps) => {
       className="w-full bg-white dark:bg-neutral-700 dark:hover:bg-neutral-600 text-neutral-600 dark:text-neutral-300 shadow"
       onClick={onClick}
     >
-      <PlusCircle size={20} className="mr-1.5" />
-      New Chat
+      <MessageSquarePlus size={20} className="mr-1.5" />
+      New chat
     </Button>
   );
 };

@@ -4,9 +4,8 @@ import axios from "axios";
 import { FunctionComponent, useEffect, useState } from "react";
 import { useChat } from "ai/react";
 import { useQuery } from "@tanstack/react-query";
-import { Loader2, SendHorizonal, MessageCircle, Mail } from "lucide-react";
-import { Input } from "./ui/input";
-import { SafeChat, SafeSource } from "@/lib/db/schema";
+import { Loader2, Mail, CornerDownRight } from "lucide-react";
+import { SafeChat } from "@/lib/db/schema";
 import { Button } from "./ui/button";
 import MessageList from "./message-list";
 import { useDbEvents } from "@providers/db-events-provider";
@@ -17,6 +16,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "./ui/dialog";
+import { Textarea } from "./ui/textarea";
 
 interface ChatInterfaceProps {
   currentChat: SafeChat;
@@ -32,7 +32,7 @@ const ChatInterface: FunctionComponent<ChatInterfaceProps> = ({
   isAdmin,
 }) => {
   const chatId = currentChat.id;
-  const { data } = useDbEvents();
+  const { data: settings } = useDbEvents();
 
   const query = useQuery({
     queryKey: ["chat", chatId],
@@ -48,7 +48,7 @@ const ChatInterface: FunctionComponent<ChatInterfaceProps> = ({
   const [sourcesForMessages, setSourcesForMessages] = useState<
     Record<string, any>
   >({});
-  const [showLimitDialog, setShowLimitDialog] = useState(true);
+  const [showLimitDialog, setShowLimitDialog] = useState(false);
 
   const { messages, input, isLoading, handleInputChange, handleSubmit } =
     useChat({
@@ -116,7 +116,7 @@ const ChatInterface: FunctionComponent<ChatInterfaceProps> = ({
           onSubmit={(e) => {
             if (
               isUsageRestricted &&
-              messageCount === Number(data?.free_messages)
+              messageCount === Number(settings?.free_messages)
             ) {
               e.preventDefault();
               setShowLimitDialog(true);
@@ -125,24 +125,43 @@ const ChatInterface: FunctionComponent<ChatInterfaceProps> = ({
             handleSubmit(e);
           }}
         >
-          <Input
-            value={input}
-            placeholder="Ask any question..."
-            onChange={handleInputChange}
-          />
-          <Button
-            type="submit"
-            className="bg-purple-custom-300 dark:bg-purple-custom-800"
-          >
-            {isLoading ? (
-              <Loader2 size={20} className="animate-spin" />
-            ) : (
-              <SendHorizonal
-                size={20}
-                className="text-neutral-600 dark:text-neutral-200"
-              />
-            )}
-          </Button>
+          <div className="flex flex-col items-end w-full border border-neutral-300 dark:border-neutral-700 rounded-lg">
+            <Textarea
+              value={input}
+              placeholder="Ask any question..."
+              rows={2}
+              disabled={isLoading}
+              onChange={handleInputChange}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  if (
+                    isUsageRestricted &&
+                    messageCount === Number(settings?.free_messages)
+                  ) {
+                    setShowLimitDialog(true);
+                    return;
+                  }
+                  handleSubmit(e as any);
+                }
+              }}
+              className="pt-2.5 border-none resize-none"
+            />
+            <Button
+              type="submit"
+              variant="ghost"
+              className="w-fit gap-1 font-light text-[12px] text-neutral-400 dark:text-neutral-500 hover:text-neutral-600 dark:hover:text-neutral-400 hover:bg-transparent"
+            >
+              {isLoading ? (
+                <Loader2 size={16} className="animate-spin" />
+              ) : (
+                <>
+                  <CornerDownRight size={16} />
+                  Enter to send
+                </>
+              )}
+            </Button>
+          </div>
         </form>
       </div>
 
@@ -150,7 +169,6 @@ const ChatInterface: FunctionComponent<ChatInterfaceProps> = ({
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              {/* <MessageCircle className="h-5 w-5 text-purple-custom-500" /> */}
               Message Limit Reached
             </DialogTitle>
             <DialogDescription className="text-left">
@@ -158,7 +176,7 @@ const ChatInterface: FunctionComponent<ChatInterfaceProps> = ({
                 <p>
                   You&apos;ve reached your free message limit of{" "}
                   <span className="font-semibold">
-                    {data?.free_messages} messages.
+                    {settings?.free_messages} messages.
                   </span>
                 </p>
                 <p>

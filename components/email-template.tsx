@@ -1,5 +1,5 @@
 interface EmailTemplateProps {
-  name: string;
+  name?: string;
   email: string;
   message: string;
   userId: string;
@@ -18,7 +18,7 @@ const EmailTemplate = ({
         <p key={index}>{paragraph}</p>
       ))}
       <p style={{ color: "gray", fontSize: "12px", marginTop: "24px" }}>
-        From: {`${name} <${email}>`}
+        From: {name ? `${name} <${email}>` : email}
       </p>
       <p style={{ color: "gray", fontSize: "12px", marginTop: "24px" }}>
         User ID: {userId}

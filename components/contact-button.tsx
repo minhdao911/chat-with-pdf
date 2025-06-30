@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { MessageCircle, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "react-hot-toast";
 import axios from "axios";
 import { useUser } from "@clerk/nextjs";
+import TooltipButton from "./ui/tooltip-button";
 
 interface ContactFormData {
   name: string;
@@ -45,12 +46,19 @@ export default function ContactButton() {
     },
   });
 
+  useEffect(() => {
+    if (!isOpen) {
+      reset();
+    }
+  }, [isOpen]);
+
   const onSubmit = async (data: ContactFormData) => {
     setIsSubmitting(true);
 
     try {
       const response = await axios.post("/api/send-email", {
         ...data,
+        email: data.email || user?.emailAddresses[0].emailAddress,
         userId: user?.id,
       });
       if (response.status === 200) {
@@ -77,15 +85,13 @@ export default function ContactButton() {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button
-          size="icon"
-          variant="ghost"
-          className="h-auto w-auto p-2 rounded-full hover:bg-purple-custom-300/50 dark:hover:bg-neutral-800 transition-colors"
-        >
-          <MessageCircle className="h-4 w-4 text-neutral-600 dark:text-neutral-400 transition-colors" />
-          <span className="sr-only">Contact</span>
-        </Button>
+      <DialogTrigger>
+        <TooltipButton
+          icon={MessageCircle}
+          tooltipText="Contact"
+          className="h-8 w-8 rounded-full hover:bg-purple-custom-300/50 dark:hover:bg-neutral-800 transition-colors"
+          iconClassName="text-neutral-600 dark:text-neutral-400"
+        />
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
@@ -101,36 +107,19 @@ export default function ContactButton() {
         >
           <div className="space-y-2">
             <label htmlFor="name" className="text-sm font-medium">
-              Name*
+              Name
             </label>
-            <Input
-              id="name"
-              placeholder="Your name"
-              {...register("name", {
-                required: "Name is required",
-                minLength: {
-                  value: 2,
-                  message: "Name must be at least 2 characters",
-                },
-              })}
-              className={
-                hasAttemptedSubmit && errors.name ? "border-red-500" : ""
-              }
-            />
-            {hasAttemptedSubmit && errors.name && (
-              <p className="text-xs text-red-500">{errors.name.message}</p>
-            )}
+            <Input id="name" placeholder="Your name" {...register("name")} />
           </div>
           <div className="space-y-2">
             <label htmlFor="email" className="text-sm font-medium">
-              Email*
+              Email
             </label>
             <Input
               id="email"
               type="email"
               placeholder="your.email@example.com"
               {...register("email", {
-                required: "Email is required",
                 pattern: {
                   value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
                   message: "Invalid email address",

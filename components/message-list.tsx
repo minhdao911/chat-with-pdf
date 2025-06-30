@@ -2,8 +2,8 @@
 
 import { cn } from "@/lib/utils";
 import { Message } from "ai";
-import { Loader2, Clipboard } from "lucide-react";
-import { FunctionComponent } from "react";
+import { Loader2, Clipboard, Check } from "lucide-react";
+import { FunctionComponent, useState } from "react";
 import TooltipButton from "./ui/tooltip-button";
 // import SourcesDialog from "./sources-dialog";
 
@@ -19,6 +19,16 @@ const MessageList: FunctionComponent<MessageListProps> = ({
   isLoading,
   // data,
 }) => {
+  const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
+
+  const handleCopy = (text: string, chatId: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedMessageId(chatId);
+    setTimeout(() => {
+      setCopiedMessageId(null);
+    }, 1000);
+  };
+
   if (isLoading) {
     return (
       <div className="absolute-center">
@@ -52,8 +62,9 @@ const MessageList: FunctionComponent<MessageListProps> = ({
               <div className="flex">
                 {/* <SourcesDialog sources={data[m.id] ?? data[i]} /> */}
                 <TooltipButton
-                  icon={Clipboard}
-                  tooltipText="Copy to clipboard"
+                  icon={copiedMessageId === m.id ? Check : Clipboard}
+                  tooltipText="Copy"
+                  onClick={() => handleCopy(m.content, m.id)}
                 />
               </div>
             )}

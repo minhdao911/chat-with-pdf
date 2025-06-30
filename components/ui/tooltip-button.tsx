@@ -6,15 +6,22 @@ import {
 } from "./tooltip";
 import { FunctionComponent } from "react";
 import { Button } from "./button";
+import { cn } from "@lib/utils";
 
 interface TooltipButtonProps {
   icon: any;
   tooltipText: string;
+  className?: string;
+  iconClassName?: string;
+  onClick?: () => void;
 }
 
 const TooltipButton: FunctionComponent<TooltipButtonProps> = ({
   icon,
   tooltipText,
+  className,
+  iconClassName,
+  onClick,
 }) => {
   const Icon = icon;
   return (
@@ -22,10 +29,14 @@ const TooltipButton: FunctionComponent<TooltipButtonProps> = ({
       <Tooltip>
         <TooltipTrigger>
           <Button
-            className="bg-transparent hover:bg-purple-custom-200 dark:hover:bg-neutral-700 py-[3px] px-2"
+            className={cn(
+              "bg-transparent hover:bg-purple-custom-200 dark:hover:bg-neutral-700 py-[3px] px-2",
+              className
+            )}
             size="sm"
+            onClick={onClick}
           >
-            <Icon size={15} className="text-neutral-400" />
+            <Icon size={15} className={cn("text-neutral-400", iconClassName)} />
           </Button>
         </TooltipTrigger>
         <TooltipContent>

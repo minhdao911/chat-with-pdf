@@ -29,7 +29,7 @@ export default function RootLayout({
               <body className={inter.className}>{children}</body>
             </DbEventsProvider>
           </ThemeProvider>
-          <Toaster position="bottom-center" />
+          <Toaster />
         </html>
       </QueryProvider>
     </ClerkProvider>
