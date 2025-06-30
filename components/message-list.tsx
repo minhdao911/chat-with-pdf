@@ -38,7 +38,7 @@ const MessageList: FunctionComponent<MessageListProps> = ({
   }
 
   return (
-    <div className="flex flex-col gap-3 px-3">
+    <div className="flex flex-col gap-3 p-3 pb-5 h-full overflow-y-auto no-scrollbar">
       {messages.map((m, i) => (
         <div
           key={m.id}

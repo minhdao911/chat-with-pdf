@@ -18,7 +18,7 @@ export const logger: Logger = {
     log(message, "error", extra);
   },
   debug(message, extra) {
-    devLog(message, extra);
+    log(message, "debug", extra);
   },
   warn(message, extra) {
     log(message, "warn", extra);
@@ -30,7 +30,7 @@ export const logger: Logger = {
 
 const log = (
   message: string,
-  level: "info" | "error" | "warn" | "fatal",
+  level: "info" | "error" | "warn" | "fatal" | "debug",
   extra?: any
 ) => {
   if (env === "production") {
@@ -39,11 +39,4 @@ const log = (
     const consoleMethod = level === "fatal" ? "error" : level;
     (console as any)[consoleMethod](message, extra || "");
   }
-};
-
-const devLog = (message: string, extra?: any) => {
-  if (env === "production") {
-    return;
-  }
-  console.log(message, extra || "");
 };

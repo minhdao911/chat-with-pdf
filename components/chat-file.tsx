@@ -9,7 +9,7 @@ interface ChatFileProps {
 
 const ChatFile = ({ chatCount, isUsageRestricted }: ChatFileProps) => {
   return (
-    <div className="relative flex-1 w-full h-screen overflow-auto">
+    <div className="relative flex-1 w-full h-screen overflow-auto no-scrollbar">
       <div className="absolute-center">
         <FileUpload
           chatCount={chatCount}

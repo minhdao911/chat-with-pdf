@@ -100,7 +100,7 @@ const ChatInterface: FunctionComponent<ChatInterfaceProps> = ({
   return (
     <>
       <div
-        className="relative w-full h-screen overflow-auto pt-3"
+        className="relative w-full h-screen flex flex-col justify-between"
         id="message-container"
       >
         <MessageList
@@ -110,9 +110,7 @@ const ChatInterface: FunctionComponent<ChatInterfaceProps> = ({
           chatId={chatId}
         />
         <form
-          className={`${
-            scrolled ? "sticky" : "absolute"
-          } bottom-0 left-0 right-0 flex gap-2 bg-white dark:bg-background px-3 py-5`}
+          className={`flex gap-2 bg-white dark:bg-background px-3 pb-5`}
           onSubmit={(e) => {
             if (
               isUsageRestricted &&
