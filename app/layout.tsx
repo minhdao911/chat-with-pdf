@@ -5,7 +5,6 @@ import QueryProvider from "@/components/query-provider";
 import { Toaster } from "react-hot-toast";
 import ThemeProvider from "@/components/theme-provider";
 import { DbEventsProvider } from "@providers/db-events-provider";
-import { UserProvider } from "@providers/user-provider";
 
 import "./globals.css";
 
@@ -27,9 +26,7 @@ export default function RootLayout({
         <html lang="en" suppressHydrationWarning>
           <ThemeProvider>
             <DbEventsProvider>
-              <UserProvider>
-                <body className={inter.className}>{children}</body>
-              </UserProvider>
+              <body className={inter.className}>{children}</body>
             </DbEventsProvider>
           </ThemeProvider>
           <Toaster />
