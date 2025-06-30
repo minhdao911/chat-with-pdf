@@ -13,7 +13,7 @@ A chat application which focuses on information retrieval by answering questions
 
 ## 🧠 How the RAG (Retrieval-Augmented Generation) System Works
 
-This application implements a sophisticated RAG pipeline that combines information retrieval with generative AI to provide accurate, source-based answers about PDF documents.
+This application implements a RAG pipeline that combines information retrieval with generative AI to provide accurate, source-based answers about PDF documents.
 
 ### 1. Document Ingestion Pipeline
 
@@ -32,7 +32,7 @@ graph TD
 - **File Upload**: PDFs are securely uploaded to AWS S3 with unique file keys
 - **Text Extraction**: LangChain's PDFLoader extracts text content while preserving page metadata
 - **Document Chunking**: RecursiveCharacterTextSplitter divides documents into 512-character chunks with 100-character overlap for context preservation
-- **Vectorization**: OpenAI's `text-embedding-ada-002` model converts text chunks into high-dimensional vectors
+- **Vectorization**: OpenAI's text embedding model converts text chunks into high-dimensional vectors
 - **Storage**: Embeddings are stored in Pinecone vector database with metadata (page numbers, file keys, original text)
 
 ### 2. Query Processing & Retrieval
