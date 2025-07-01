@@ -1,8 +1,9 @@
 "use client";
 
-import React, { createContext, useContext } from "react";
+import React, { createContext, useContext, useEffect, useRef } from "react";
 import { useUser } from "@clerk/nextjs";
 import { useQuery } from "@tanstack/react-query";
+import { useAppStore } from "@store/app-store";
 
 async function initializeUser() {
   const response = await fetch("/api/user/initialize", {
@@ -36,6 +37,8 @@ interface UserProviderProps {
 
 export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   const { user, isLoaded } = useUser();
+  const { initialize } = useAppStore();
+  const hasInitialized = useRef(false);
 
   // Only initialize when user is loaded and authenticated
   const { data, isLoading, error } = useQuery({
@@ -46,6 +49,13 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     retry: 3,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
+
+  useEffect(() => {
+    if (data && !hasInitialized.current) {
+      hasInitialized.current = true;
+      initialize(data);
+    }
+  }, [data]);
 
   const contextValue: UserContextType = {
     isInitialized: !!data,

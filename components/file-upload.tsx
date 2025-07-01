@@ -8,19 +8,21 @@ import { uploadToS3 } from "@/lib/s3";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { Loader2, Upload } from "lucide-react";
-import { useDbEvents } from "@providers/db-events-provider";
 import { logger } from "@lib/logger";
+import LimitReachedDialog from "./limit-reached-dialog";
+import { useAppStore } from "@store/app-store";
+import { SafeChat } from "@lib/db/schema";
+import { useDbEvents } from "@providers/db-events-provider";
 
-interface FileUploadProps {
-  isUsageRestricted: boolean;
-  chatCount: number;
-}
-
-const FileUpload = ({ chatCount, isUsageRestricted }: FileUploadProps) => {
+const FileUpload = () => {
   const router = useRouter();
-  const { data } = useDbEvents();
+  const { settings } = useDbEvents();
+  const { freeChats, isUsageRestricted, fileCount, addChat } = useAppStore();
+
+  const chatLimit = freeChats || Number(settings?.free_chats);
 
   const [isUploading, setIsUploading] = useState(false);
+  const [showLimitDialog, setShowLimitDialog] = useState(false);
 
   const { mutate, isPending } = useMutation({
     mutationFn: async ({
@@ -40,8 +42,8 @@ const FileUpload = ({ chatCount, isUsageRestricted }: FileUploadProps) => {
 
   const onDrop = useCallback(
     async (acceptedFiles: any) => {
-      if (isUsageRestricted && chatCount === Number(data?.free_chats)) {
-        toast("You have reached your file uploads limit");
+      if (isUsageRestricted && fileCount === chatLimit) {
+        setShowLimitDialog(true);
         return;
       }
 
@@ -59,9 +61,11 @@ const FileUpload = ({ chatCount, isUsageRestricted }: FileUploadProps) => {
             return;
           }
           mutate(data, {
-            onSuccess: ({ chat_id }: { chat_id: string }) => {
+            onSuccess: ({ chat }: { chat: SafeChat }) => {
               toast.success("Uploaded file successfully");
-              router.push(`/chat/${chat_id}`);
+              console.log("chat", chat);
+              addChat(chat);
+              router.push(`/chat/${chat.id}`);
             },
             onError: () => {
               toast.error("Error creating chat");
@@ -76,8 +80,7 @@ const FileUpload = ({ chatCount, isUsageRestricted }: FileUploadProps) => {
         }
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [mutate, router, chatCount]
+    [mutate, router, fileCount, chatLimit, isUsageRestricted]
   );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -112,6 +115,12 @@ const FileUpload = ({ chatCount, isUsageRestricted }: FileUploadProps) => {
           </p>
         </>
       )}
+
+      <LimitReachedDialog
+        type="file"
+        open={showLimitDialog}
+        setOpen={setShowLimitDialog}
+      />
     </div>
   );
 };

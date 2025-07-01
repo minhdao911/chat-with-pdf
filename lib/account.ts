@@ -133,8 +133,6 @@ export const ensureUserExists = async () => {
       })
       .returning();
 
-    // Get app settings for defaults
-    const settings = await db.select().from(app_settings);
     const userChats = await db
       .select()
       .from(chats)
@@ -152,16 +150,9 @@ export const ensureUserExists = async () => {
         )
       );
 
-    // Create user settings with defaults
     await db.insert(user_settings).values({
       userId: user.id,
       messageCount: userMessages.length,
-      freeChats: Number(
-        settings.find((s) => s.name === "free_chats")?.value || 0
-      ),
-      freeMessages: Number(
-        settings.find((s) => s.name === "free_messages")?.value || 0
-      ),
     });
 
     return newUser[0];

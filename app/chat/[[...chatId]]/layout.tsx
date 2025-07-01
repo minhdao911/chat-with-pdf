@@ -1,9 +1,14 @@
-import { UserProvider } from "@providers/user-provider";
+import ChatSideBar from "@components/chat-sidebar";
 
 export default function ChatLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return <UserProvider>{children}</UserProvider>;
+  return (
+    <div className="flex">
+      <ChatSideBar />
+      {children}
+    </div>
+  );
 }

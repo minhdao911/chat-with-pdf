@@ -1,13 +1,7 @@
 import ChatFile from "@/components/chat-file";
 import ChatInterface from "@/components/chat-interface";
-import ChatSideBar from "@components/chat-sidebar";
 import PdfViewer from "@/components/pdf-viewer";
-import {
-  getUserMetadata,
-  checkSubscription,
-  getUserSettings,
-} from "@lib/account";
-import { getChats, getCurrentChat } from "./_actions/chat";
+import { getChat } from "./_actions/chat";
 
 interface ChatPageProps {
   params: {
@@ -16,38 +10,18 @@ interface ChatPageProps {
 }
 
 export default async function ChatPage({ params: { chatId } }: ChatPageProps) {
-  const chats = await getChats();
-  const currentChat = chatId ? getCurrentChat(chats, chatId[0]) : null;
-  const hasValidSubscription = await checkSubscription();
-  const userMetadata = await getUserMetadata();
-  const userSettings = await getUserSettings();
-  const isAdmin = userMetadata?.role === "admin";
-  const isUsageRestricted = !hasValidSubscription && !isAdmin;
+  const currentChat = chatId?.[0] ? await getChat(chatId[0]) : null;
 
   return (
-    <div className="flex">
-      <ChatSideBar
-        chats={chats}
-        currentChatId={currentChat?.id}
-        isUsageRestricted={isUsageRestricted}
-        messageCount={userSettings?.messageCount || 0}
-      />
+    <>
       {currentChat ? (
         <>
           <PdfViewer pdfUrl={currentChat.pdfUrl} />
-          <ChatInterface
-            isUsageRestricted={isUsageRestricted}
-            currentChat={currentChat}
-            messageCount={userSettings?.messageCount || 0}
-            isAdmin={isAdmin}
-          />
+          <ChatInterface currentChat={currentChat} />
         </>
       ) : (
-        <ChatFile
-          chatCount={userSettings?.freeChats || chats.length}
-          isUsageRestricted={isUsageRestricted}
-        />
+        <ChatFile />
       )}
-    </div>
+    </>
   );
 }

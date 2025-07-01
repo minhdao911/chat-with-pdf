@@ -18,7 +18,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "react-hot-toast";
 import axios from "axios";
 import { useUser } from "@clerk/nextjs";
-import TooltipButton from "./ui/tooltip-button";
+import { TooltipIcon } from "@/components/ui/tooltip";
 
 interface ContactFormData {
   name: string;
@@ -86,12 +86,7 @@ export default function ContactButton() {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger>
-        <TooltipButton
-          icon={MessageCircle}
-          tooltipText="Contact"
-          className="h-8 w-8 rounded-full hover:bg-purple-custom-300/50 dark:hover:bg-neutral-800 transition-colors"
-          iconClassName="text-neutral-600 dark:text-neutral-400"
-        />
+        <TooltipIcon icon={MessageCircle} tooltipText="Contact" />
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>

@@ -1,7 +1,6 @@
 "use client";
 
 import { HelpCircle, Mail } from "lucide-react";
-import { useDbEvents } from "@providers/db-events-provider";
 import PricingDialog from "./pricing-dialog";
 import {
   Dialog,
@@ -11,6 +10,8 @@ import {
   DialogDescription,
 } from "./ui/dialog";
 import { useState } from "react";
+import { useDbEvents } from "@providers/db-events-provider";
+import { useAppStore } from "@store/app-store";
 
 interface UsageInfoProps {
   isUsageRestricted: boolean;
@@ -23,14 +24,13 @@ const UsageInfo = ({
   messageCount,
   chatCount,
 }: UsageInfoProps) => {
-  const { data } = useDbEvents();
+  const { settings } = useDbEvents();
+  const { freeChats, freeMessages } = useAppStore();
+
+  const chatLimit = freeChats || Number(settings?.free_chats);
+  const messageLimit = freeMessages || Number(settings?.free_messages);
 
   const [showHelpDialog, setShowHelpDialog] = useState(false);
-
-  const usage = {
-    chats: data?.free_chats,
-    messages: data?.free_messages,
-  };
 
   return (
     <>
@@ -52,18 +52,18 @@ const UsageInfo = ({
               <p className="">Files</p>
               <p>
                 <span className="text-lg font-semibold">{chatCount}</span>/
-                {data?.free_chats}
+                {chatLimit}
               </p>
             </div>
             <div className="w-full p-2 px-3.5 bg-white dark:bg-neutral-700 rounded-md shadow">
               <p>Messages</p>
               <p>
                 <span className="text-lg font-semibold">{messageCount}</span>/
-                {data?.free_messages}
+                {messageLimit}
               </p>
             </div>
           </div>
-          {data?.billing && (
+          {settings?.billing && (
             <div className="w-full">
               <p className="text-xs text-center text-neutral-700 dark:text-neutral-400 mb-3">
                 Unlock unlimited usage with

@@ -3,8 +3,9 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import QueryProvider from "@/components/query-provider";
 import { Toaster } from "react-hot-toast";
-import ThemeProvider from "@/components/theme-provider";
 import { DbEventsProvider } from "@providers/db-events-provider";
+import { UserProvider } from "@providers/user-provider";
+import { ThemeProvider } from "next-themes";
 
 import "./globals.css";
 
@@ -23,14 +24,22 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <QueryProvider>
-        <html lang="en" suppressHydrationWarning>
-          <ThemeProvider>
-            <DbEventsProvider>
-              <body className={inter.className}>{children}</body>
-            </DbEventsProvider>
-          </ThemeProvider>
-          <Toaster />
-        </html>
+        <DbEventsProvider>
+          <UserProvider>
+            <html lang="en" suppressHydrationWarning>
+              <body className={inter.className}>
+                <ThemeProvider
+                  attribute="class"
+                  defaultTheme="system"
+                  enableSystem
+                >
+                  {children}
+                </ThemeProvider>
+                <Toaster />
+              </body>
+            </html>
+          </UserProvider>
+        </DbEventsProvider>
       </QueryProvider>
     </ClerkProvider>
   );

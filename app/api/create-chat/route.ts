@@ -19,7 +19,7 @@ export async function POST(req: Request) {
     const { file_key, file_name } = body;
 
     await loadS3IntoPinecone(file_key);
-    const chat_id = await db
+    const newChat = await db
       .insert(chats)
       .values({
         fileKey: file_key,
@@ -27,14 +27,9 @@ export async function POST(req: Request) {
         pdfUrl: getS3Url(file_key),
         userId,
       })
-      .returning({
-        insertedId: chats.id,
-      });
+      .returning();
 
-    return NextResponse.json(
-      { chat_id: chat_id[0].insertedId },
-      { status: 200 }
-    );
+    return NextResponse.json({ chat: newChat[0] }, { status: 200 });
   } catch (error) {
     logger.error("Error creating chat:", {
       userId,

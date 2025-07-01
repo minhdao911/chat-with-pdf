@@ -7,15 +7,13 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 export type DbEventsData = Record<string, boolean | string> | null;
 
 export type DbEventsProviderProps = {
-  data: DbEventsData | null;
-  setData: React.Dispatch<React.SetStateAction<DbEventsData | null>>;
+  settings: DbEventsData | null;
   isConnected: boolean;
   error: string | null;
 };
 
 const initialValues: DbEventsProviderProps = {
-  data: null,
-  setData: () => undefined,
+  settings: null,
   isConnected: false,
   error: null,
 };
@@ -121,7 +119,7 @@ export const DbEventsProvider = ({
   }, [onDataUpdate, onError, onConnect, onDisconnect]);
 
   return (
-    <Provider value={{ data, setData, isConnected, error }}>
+    <Provider value={{ settings: data, isConnected, error }}>
       {children}
     </Provider>
   );

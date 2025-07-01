@@ -27,4 +27,49 @@ const TooltipContent = React.forwardRef<
 ));
 TooltipContent.displayName = TooltipPrimitive.Content.displayName;
 
-export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider };
+const TooltipIcon = ({
+  icon,
+  tooltipText,
+  className,
+  iconClassName,
+}: {
+  icon: any;
+  tooltipText: string;
+  className?: string;
+  iconClassName?: string;
+}) => {
+  const Icon = icon;
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger>
+          <div
+            className={cn(
+              "h-8 w-8 rounded-full hover:bg-purple-custom-300/50 dark:hover:bg-neutral-800 transition-colors flex items-center justify-center",
+              className
+            )}
+          >
+            <Icon
+              size={15}
+              className={cn(
+                "text-neutral-600 dark:text-neutral-400",
+                iconClassName
+              )}
+            />
+          </div>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p className="text-sm">{tooltipText}</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+};
+
+export {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+  TooltipProvider,
+  TooltipIcon,
+};

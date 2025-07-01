@@ -14,8 +14,8 @@ Sentry.init({
   debug: false,
 
   integrations: [
-    // Send console.log, console.error, and console.warn calls as logs to Sentry
-    Sentry.consoleLoggingIntegration({ levels: ["log", "error", "warn"] }),
+    // Send console.info, console.error, and console.warn calls as logs to Sentry
+    Sentry.consoleLoggingIntegration({ levels: ["info", "error", "warn"] }),
   ],
 
   _experiments: {

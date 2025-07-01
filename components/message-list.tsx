@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils";
 import { Message } from "ai";
 import { Loader2, Clipboard, Check } from "lucide-react";
-import { FunctionComponent, useState } from "react";
+import { FunctionComponent, useEffect, useState } from "react";
 import TooltipButton from "./ui/tooltip-button";
 // import SourcesDialog from "./sources-dialog";
 
@@ -29,16 +29,32 @@ const MessageList: FunctionComponent<MessageListProps> = ({
     }, 1000);
   };
 
+  useEffect(() => {
+    const messageContainer = document.getElementById("message-list");
+    if (messageContainer) {
+      messageContainer.scrollTo({
+        top: messageContainer.scrollHeight,
+        behavior: "smooth",
+      });
+    }
+  }, [messages]);
+
   if (isLoading) {
     return (
-      <div className="absolute-center">
-        <Loader2 size={30} className="text-neutral-600 animate-spin" />
+      <div className="h-full flex justify-center items-center">
+        <Loader2
+          size={30}
+          className="text-neutral-400 dark:text-neutral-600 animate-spin"
+        />
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col gap-3 p-3 pb-5 h-full overflow-y-auto no-scrollbar">
+    <div
+      className="flex flex-col gap-3 p-3 pb-4 h-full overflow-y-auto no-scrollbar"
+      id="message-list"
+    >
       {messages.map((m, i) => (
         <div
           key={m.id}

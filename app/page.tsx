@@ -29,7 +29,7 @@ export default function Home() {
           </Button>
           <div className="backdrop-blur-sm bg-white/50 p-3 rounded-md mt-5">
             <Image
-              src="/demo.png"
+              src="/demo.webp"
               alt="demo image of the app"
               width="1200"
               height="700"

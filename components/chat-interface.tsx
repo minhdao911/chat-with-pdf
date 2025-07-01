@@ -4,35 +4,34 @@ import axios from "axios";
 import { FunctionComponent, useEffect, useState } from "react";
 import { useChat } from "ai/react";
 import { useQuery } from "@tanstack/react-query";
-import { Loader2, Mail, CornerDownRight } from "lucide-react";
+import { Loader2, CornerDownRight } from "lucide-react";
 import { SafeChat } from "@/lib/db/schema";
 import { Button } from "./ui/button";
 import MessageList from "./message-list";
-import { useDbEvents } from "@providers/db-events-provider";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "./ui/dialog";
 import { Textarea } from "./ui/textarea";
+import LimitReachedDialog from "./limit-reached-dialog";
+import { useAppStore } from "@store/app-store";
+import { useDbEvents } from "@providers/db-events-provider";
 
 interface ChatInterfaceProps {
   currentChat: SafeChat;
-  isUsageRestricted: boolean;
-  messageCount: number;
-  isAdmin: boolean;
 }
 
 const ChatInterface: FunctionComponent<ChatInterfaceProps> = ({
   currentChat,
-  isUsageRestricted,
-  messageCount,
-  isAdmin,
 }) => {
   const chatId = currentChat.id;
-  const { data: settings } = useDbEvents();
+  const { settings } = useDbEvents();
+  const {
+    isUsageRestricted,
+    messageCount,
+    isAdmin,
+    freeMessages,
+    setCurrentChatId,
+    updateMessageCount,
+  } = useAppStore();
+
+  const messageLimit = freeMessages || Number(settings?.free_messages);
 
   const query = useQuery({
     queryKey: ["chat", chatId],
@@ -44,7 +43,6 @@ const ChatInterface: FunctionComponent<ChatInterfaceProps> = ({
     },
   });
 
-  const [scrolled, setScrolled] = useState(false);
   const [sourcesForMessages, setSourcesForMessages] = useState<
     Record<string, any>
   >({});
@@ -60,6 +58,8 @@ const ChatInterface: FunctionComponent<ChatInterfaceProps> = ({
       },
       initialMessages: query.data?.messages || [],
       onResponse: (response) => {
+        updateMessageCount("increase", 1);
+
         const sourcesHeader = response.headers.get("x-sources");
         const sources = sourcesHeader
           ? JSON.parse(Buffer.from(sourcesHeader, "base64").toString("utf8"))
@@ -75,15 +75,8 @@ const ChatInterface: FunctionComponent<ChatInterfaceProps> = ({
     });
 
   useEffect(() => {
-    const messageContainer = document.getElementById("message-container");
-    if (messageContainer) {
-      messageContainer.scrollTo({
-        top: messageContainer.scrollHeight,
-        behavior: "smooth",
-      });
-      setScrolled(messageContainer.scrollHeight > window.innerHeight);
-    }
-  }, [messages]);
+    setCurrentChatId(chatId);
+  }, []);
 
   // useEffect(() => {
   //   if (query.data?.sources) {
@@ -97,12 +90,24 @@ const ChatInterface: FunctionComponent<ChatInterfaceProps> = ({
   //   }
   // }, [query.data?.sources]);
 
+  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    if (isUsageRestricted && messageCount === messageLimit) {
+      e.preventDefault();
+      setShowLimitDialog(true);
+      return;
+    }
+    handleSubmit(e);
+  };
+
+  const onKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      onSubmit(e as any);
+    }
+  };
+
   return (
     <>
-      <div
-        className="relative w-full h-screen flex flex-col justify-between"
-        id="message-container"
-      >
+      <div className="relative w-full h-screen flex flex-col justify-between">
         <MessageList
           messages={messages}
           isLoading={query.isLoading}
@@ -110,18 +115,8 @@ const ChatInterface: FunctionComponent<ChatInterfaceProps> = ({
           chatId={chatId}
         />
         <form
-          className={`flex gap-2 bg-white dark:bg-background px-3 pb-5`}
-          onSubmit={(e) => {
-            if (
-              isUsageRestricted &&
-              messageCount === Number(settings?.free_messages)
-            ) {
-              e.preventDefault();
-              setShowLimitDialog(true);
-              return;
-            }
-            handleSubmit(e);
-          }}
+          className={`flex gap-2 bg-white dark:bg-background px-3 pt-1 pb-5`}
+          onSubmit={onSubmit}
         >
           <div className="flex flex-col items-end w-full border border-neutral-300 dark:border-neutral-700 rounded-lg">
             <Textarea
@@ -130,19 +125,7 @@ const ChatInterface: FunctionComponent<ChatInterfaceProps> = ({
               rows={2}
               disabled={isLoading}
               onChange={handleInputChange}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && !e.shiftKey) {
-                  e.preventDefault();
-                  if (
-                    isUsageRestricted &&
-                    messageCount === Number(settings?.free_messages)
-                  ) {
-                    setShowLimitDialog(true);
-                    return;
-                  }
-                  handleSubmit(e as any);
-                }
-              }}
+              onKeyDown={onKeyDown}
               className="pt-2.5 border-none resize-none"
             />
             <Button
@@ -163,37 +146,11 @@ const ChatInterface: FunctionComponent<ChatInterfaceProps> = ({
         </form>
       </div>
 
-      <Dialog open={showLimitDialog} onOpenChange={setShowLimitDialog}>
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              Message Limit Reached
-            </DialogTitle>
-            <DialogDescription className="text-left">
-              <div className="flex flex-col gap-3 mt-3">
-                <p>
-                  You&apos;ve reached your free message limit of{" "}
-                  <span className="font-semibold">
-                    {settings?.free_messages} messages.
-                  </span>
-                </p>
-                <p>
-                  Thank you for your interest in the product. Feel free to drop
-                  me a line to increase the limit if you want to continue trying
-                  out.
-                </p>
-                <div className="flex items-start gap-2 p-3 bg-neutral-50 dark:bg-neutral-800 rounded-lg">
-                  <Mail size={18} className="text-purple-custom-500" />
-                  <span className="text-sm">
-                    Use the contact button in the bottom-right corner of the
-                    sidebar to reach out!
-                  </span>
-                </div>
-              </div>
-            </DialogDescription>
-          </DialogHeader>
-        </DialogContent>
-      </Dialog>
+      <LimitReachedDialog
+        type="message"
+        open={showLimitDialog}
+        setOpen={setShowLimitDialog}
+      />
     </>
   );
 };

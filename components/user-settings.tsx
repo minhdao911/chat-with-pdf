@@ -6,29 +6,27 @@ import { Switch } from "./ui/switch";
 import { useTheme } from "next-themes";
 import UsageInfo from "./usage-info";
 import ContactButton from "./contact-button";
+import { useAppStore } from "@store/app-store";
+import { useUserInitialization } from "@providers/user-provider";
 
-interface UserSettingsProps {
-  isUsageRestricted: boolean;
-  messageCount: number;
-  chatCount: number;
-}
+interface UserSettingsProps {}
 
-const UserSettings = ({
-  isUsageRestricted,
-  messageCount,
-  chatCount,
-}: UserSettingsProps) => {
+const UserSettings = ({}: UserSettingsProps) => {
   const { user } = useUser();
+  const { isUsageRestricted, messageCount, fileCount } = useAppStore();
+  const { isInitialized } = useUserInitialization();
   const { theme, setTheme } = useTheme();
   const darkmode = theme === "dark";
 
   return (
     <div className="flex flex-col gap-5 dark:border-neutral-700">
-      <UsageInfo
-        isUsageRestricted={isUsageRestricted}
-        messageCount={messageCount}
-        chatCount={chatCount}
-      />
+      {isInitialized && (
+        <UsageInfo
+          isUsageRestricted={isUsageRestricted}
+          messageCount={messageCount}
+          chatCount={fileCount}
+        />
+      )}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <UserButton />

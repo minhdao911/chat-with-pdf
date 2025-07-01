@@ -27,8 +27,8 @@ export const user_settings = pgTable("user_settings", {
     .notNull()
     .references(() => users.id),
   messageCount: integer("message_count").notNull().default(0),
-  freeChats: integer("free_chats").notNull().default(0),
-  freeMessages: integer("free_messages").notNull().default(0),
+  freeChats: integer("free_chats"),
+  freeMessages: integer("free_messages"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 export type UserSettings = typeof user_settings.$inferSelect;
