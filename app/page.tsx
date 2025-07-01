@@ -1,8 +1,7 @@
 import ClientOnly from "@/components/client-only";
-import { Button } from "@/components/ui/button";
-import { Bot } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { GoToChatButton } from "./page-client";
 
 export default function Home() {
   return (
@@ -21,12 +20,7 @@ export default function Home() {
               It&apos;s an easy-to-use tool for quick information retrieval.
             </p>
           </div>
-          <Button className="bg-black/90 text-neutral-100 hover:bg-black/80">
-            <Link href="/chat" className="flex">
-              Go to chat
-              <Bot className="ml-1.5" size={18} />
-            </Link>
-          </Button>
+          <GoToChatButton />
           <div className="backdrop-blur-sm bg-white/50 p-3 rounded-md mt-5">
             <Image
               src="/demo.webp"
