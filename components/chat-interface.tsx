@@ -10,6 +10,7 @@ import { Button } from "./ui/button";
 import MessageList from "./message-list";
 import { Textarea } from "./ui/textarea";
 import LimitReachedDialog from "./limit-reached-dialog";
+import ModelSelector from "./model-selector";
 import { useAppStore } from "@store/app-store";
 import { useDbEvents } from "@providers/db-events-provider";
 
@@ -29,6 +30,7 @@ const ChatInterface: FunctionComponent<ChatInterfaceProps> = ({
     freeMessages,
     setCurrentChatId,
     updateMessageCount,
+    selectedModel,
   } = useAppStore();
 
   const messageLimit = freeMessages || Number(settings?.free_messages);
@@ -55,6 +57,7 @@ const ChatInterface: FunctionComponent<ChatInterfaceProps> = ({
         chatId,
         messageCount,
         isAdmin,
+        selectedModel,
       },
       initialMessages: query.data?.messages || [],
       onResponse: (response) => {
@@ -115,9 +118,10 @@ const ChatInterface: FunctionComponent<ChatInterfaceProps> = ({
           chatId={chatId}
         />
         <form
-          className={`flex gap-2 bg-white dark:bg-background px-3 pt-1 pb-5`}
+          className={`flex gap-3 bg-white dark:bg-background px-3 pt-1 pb-5`}
           onSubmit={onSubmit}
         >
+          {/* Chat input container */}
           <div className="flex flex-col items-end w-full border border-neutral-300 dark:border-neutral-700 rounded-lg">
             <Textarea
               value={input}
@@ -128,20 +132,27 @@ const ChatInterface: FunctionComponent<ChatInterfaceProps> = ({
               onKeyDown={onKeyDown}
               className="pt-2.5 border-none resize-none"
             />
-            <Button
-              type="submit"
-              variant="ghost"
-              className="w-fit gap-1 font-light text-[12px] text-neutral-400 dark:text-neutral-500 hover:text-neutral-600 dark:hover:text-neutral-400 hover:bg-transparent"
-            >
-              {isLoading ? (
-                <Loader2 size={16} className="animate-spin" />
-              ) : (
-                <>
-                  <CornerDownRight size={16} />
-                  Enter to send
-                </>
-              )}
-            </Button>
+            {/* Bottom row with model selector and send button */}
+            <div className="flex items-center justify-between w-full pb-2">
+              {/* Model selector on the left */}
+              <ModelSelector className="ml-3 w-32" />
+
+              {/* Send button on the right */}
+              <Button
+                type="submit"
+                variant="ghost"
+                className="w-fit gap-1 font-light text-[12px] text-neutral-400 dark:text-neutral-500 hover:text-neutral-600 dark:hover:text-neutral-400 hover:bg-transparent"
+              >
+                {isLoading ? (
+                  <Loader2 size={16} className="animate-spin" />
+                ) : (
+                  <>
+                    <CornerDownRight size={16} />
+                    Enter to send
+                  </>
+                )}
+              </Button>
+            </div>
           </div>
         </form>
       </div>

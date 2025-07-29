@@ -1,6 +1,6 @@
 "use client";
 
-import { FunctionComponent, useState } from "react";
+import { FunctionComponent, useEffect, useState } from "react";
 import { Resizable } from "re-resizable";
 
 interface PdfViewerProps {
@@ -11,10 +11,23 @@ const PdfViewer: FunctionComponent<PdfViewerProps> = ({
   pdfUrl,
 }: PdfViewerProps) => {
   const [width, setWidth] = useState(0);
+  const [maxWidth, setMaxWidth] = useState(window.innerWidth - 598);
+
+  useEffect(() => {
+    window.addEventListener("resize", () => {
+      setMaxWidth(window.innerWidth - 598);
+    });
+
+    return () => {
+      window.removeEventListener("resize", () => {});
+    };
+  }, []);
 
   return (
     <Resizable
       size={{ width: width || "60%", height: "100vh" }}
+      maxWidth={maxWidth}
+      minWidth={500}
       enable={{
         top: false,
         right: true,

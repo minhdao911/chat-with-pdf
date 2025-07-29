@@ -24,7 +24,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { messages, fileKey, chatId, messageCount, isAdmin } =
+    const { messages, fileKey, chatId, messageCount, isAdmin, selectedModel } =
       await req.json();
     const currentMessageContent = messages[messages.length - 1].content;
     const previousMessages = messages.slice(0, -1);
@@ -49,6 +49,7 @@ export async function POST(req: Request) {
       previousMessages,
       fileKey,
       isAdmin,
+      selectedModel,
       streamCallbacks: {
         handleRetrieverEnd: (documents) => {
           sources = documents.map((d) => ({

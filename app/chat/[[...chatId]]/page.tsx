@@ -9,7 +9,8 @@ interface ChatPageProps {
   };
 }
 
-export default async function ChatPage({ params: { chatId } }: ChatPageProps) {
+export default async function ChatPage({ params }: ChatPageProps) {
+  const { chatId } = await params;
   const currentChat = chatId?.[0] ? await getChat(chatId[0]) : null;
 
   return (

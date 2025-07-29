@@ -11,10 +11,12 @@ type AppStore = {
   isAdmin: boolean;
   freeChats: number;
   freeMessages: number;
+  selectedModel: string;
   addChat: (chat: SafeChat) => void;
   removeChat: (chatId: string) => void;
   setCurrentChatId: (currentChatId: string) => void;
   updateMessageCount: (type: "increase" | "decrease", by: number) => void;
+  setSelectedModel: (model: string) => void;
   initialize: (data: any) => void;
 };
 
@@ -40,6 +42,7 @@ export const useAppStore = create<AppStore>()(
       isAdmin: false,
       freeChats: 0,
       freeMessages: 0,
+      selectedModel: "gpt-4o-mini",
       addChat: (chat) =>
         set((state) => {
           const newChats = [chat, ...state.chats];
@@ -60,6 +63,7 @@ export const useAppStore = create<AppStore>()(
               ? state.messageCount + by
               : state.messageCount - by,
         })),
+      setSelectedModel: (model) => set({ selectedModel: model }),
       initialize: (data) => set({ ...data }),
     })),
     {

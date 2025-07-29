@@ -1,5 +1,4 @@
 import ChatSideBar from "@components/chat-sidebar";
-import { Loader2 } from "lucide-react";
 
 export default function ChatLayout({
   children,

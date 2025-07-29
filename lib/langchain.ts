@@ -15,7 +15,7 @@ import { ANSWER_TEMPLATE, QUESTION_TEMPLATE } from "./prompts";
 import { logger } from "./logger";
 
 const openAIApiKey = process.env.OPENAI_API_KEY;
-const defaultModel = "gpt-4.1-mini";
+const defaultModel = "gpt-4o-mini";
 const alternativeModel = "gpt-4o-mini";
 
 function getModelName(messageCount: number, isAdmin: boolean): string {
@@ -26,19 +26,31 @@ function getModelName(messageCount: number, isAdmin: boolean): string {
       : alternativeModel;
 }
 
-function createStreamingModel(messageCount: number, isAdmin: boolean) {
+function createStreamingModel(
+  selectedModel?: string,
+  messageCount?: number,
+  isAdmin?: boolean
+) {
+  const modelName =
+    selectedModel || getModelName(messageCount || 0, isAdmin || false);
   return new ChatOpenAI({
-    openAIApiKey,
-    modelName: getModelName(messageCount, isAdmin),
+    apiKey: openAIApiKey,
+    modelName,
     streaming: true,
     temperature: 0,
   });
 }
 
-function createNonStreamingModel(messageCount: number, isAdmin: boolean) {
+function createNonStreamingModel(
+  selectedModel?: string,
+  messageCount?: number,
+  isAdmin?: boolean
+) {
+  const modelName =
+    selectedModel || getModelName(messageCount || 0, isAdmin || false);
   return new ChatOpenAI({
-    openAIApiKey,
-    modelName: getModelName(messageCount, isAdmin),
+    apiKey: openAIApiKey,
+    modelName,
     temperature: 0,
   });
 }
@@ -49,6 +61,7 @@ type retrievalArgs = {
   previousMessages: string[];
   fileKey: string;
   isAdmin: boolean;
+  selectedModel?: string;
   streamCallbacks: CallbackHandlerMethods;
 };
 
@@ -66,6 +79,7 @@ export async function retrieval({
   previousMessages,
   fileKey,
   isAdmin,
+  selectedModel,
   streamCallbacks,
 }: retrievalArgs) {
   const sanitizedQuestion = question.trim().replaceAll("\n", " ");
@@ -77,7 +91,7 @@ export async function retrieval({
    */
   const standaloneQuestionChain = RunnableSequence.from([
     questionPrompt,
-    createNonStreamingModel(messageCount, isAdmin),
+    createNonStreamingModel(selectedModel, messageCount, isAdmin),
     new StringOutputParser(),
   ]);
 
@@ -108,7 +122,7 @@ export async function retrieval({
       question: (input) => input.question,
     },
     answerPrompt,
-    createStreamingModel(messageCount, isAdmin),
+    createStreamingModel(selectedModel, messageCount, isAdmin),
   ]);
 
   const conversationalRetrievalQAChain = RunnableSequence.from([
