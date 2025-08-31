@@ -9,7 +9,8 @@ export async function POST(req: Request) {
   const _messages = await db
     .select()
     .from(messages)
-    .where(eq(messages.chatId, chatId));
+    .where(eq(messages.chatId, chatId))
+    .orderBy(messages.createdAt);
 
   let _sources = await db
     .select()
