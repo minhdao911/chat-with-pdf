@@ -29,7 +29,7 @@ const ModelSelector = ({ className }: ModelSelectorProps) => {
   return (
     <div className={className}>
       <Select value={selectedModel} onValueChange={handleModelChange}>
-        <SelectTrigger className="w-full text-xs">
+        <SelectTrigger className="w-full text-xs gap-2">
           <SelectValue placeholder="Select model">
             {selectedModelLabel}
           </SelectValue>

@@ -28,7 +28,7 @@ const SourcesDialog: FunctionComponent<SourcesDialogProps> = ({ sources }) => {
         <DialogHeader>
           <DialogTitle>Sources</DialogTitle>
         </DialogHeader>
-        <div className="flex flex-col gap-3 max-h-[800px] w-[600px] overflow-auto pr-3">
+        <div className="flex flex-col gap-3 max-h-[800px] overflow-auto pr-3 no-scrollbar">
           {sources.map(({ pageNumber, content }, index) => (
             <div
               key={index}

@@ -1,7 +1,7 @@
 import { Pinecone, PineconeRecord } from "@pinecone-database/pinecone";
 import { downloadFromS3 } from "./s3-server";
-import { PDFLoader } from "langchain/document_loaders/fs/pdf";
-import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
+import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
+import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
 import md5 from "md5";
 import { convertToAscii } from "./utils";
 import { getEmbeddings } from "./embeddings";
@@ -32,6 +32,8 @@ type RecordMetadata = {
   text: string;
   pageNumber: number;
   fileKey: string;
+  chunkLength: number;
+  preview: string;
 };
 
 export async function loadS3IntoPinecone(fileKey: string) {
@@ -47,11 +49,12 @@ export async function loadS3IntoPinecone(fileKey: string) {
     const pages = (await loader.load()) as PDFPage[];
 
     // 2. Split and segment the pdf into smaller documents
-    // From the docs https://www.pinecone.io/learn/chunking-strategies/
+    // Improved chunking strategy for better context preservation
     const textSplitter = new RecursiveCharacterTextSplitter({
-      chunkSize: 512,
-      chunkOverlap: 100,
-      separators: ["\n\n", "\n"],
+      chunkSize: 1000, // Larger chunks for better context
+      chunkOverlap: 200, // More overlap to preserve context across chunks
+      separators: ["\n\n", "\n", ".", "!", "?", ";"], // More granular separators
+      keepSeparator: true, // Keep separators to maintain text structure
     });
 
     let documents = await textSplitter.splitDocuments(pages);
@@ -63,9 +66,14 @@ export async function loadS3IntoPinecone(fileKey: string) {
       },
     }));
 
-    // 3. vetorise and embed individual documents
-    const vectors = await Promise.all(
+    // 3. vectorize and embed individual documents
+    const vectorPromises = await Promise.all(
       documents.flat().map((d) => embedDocument(d as PDFPage, fileKey))
+    );
+
+    // Filter out null values (skipped short chunks)
+    const vectors = vectorPromises.filter(
+      (vector): vector is PineconeRecord<RecordMetadata> => vector !== null
     );
 
     // 4. upload to pinecone
@@ -89,17 +97,32 @@ export async function loadS3IntoPinecone(fileKey: string) {
 async function embedDocument(
   doc: PDFPage,
   fileKey: string
-): Promise<PineconeRecord<RecordMetadata>> {
-  const embeddings = await getEmbeddings(doc.pageContent);
-  const hash = md5(doc.pageContent);
+): Promise<PineconeRecord<RecordMetadata> | null> {
+  // Clean and preprocess text for better embeddings
+  const cleanedText = doc.pageContent
+    .replace(/\s+/g, " ") // Normalize whitespace
+    .replace(/[^\w\s\.\,\!\?\;\:]/g, "") // Remove special characters that don't add meaning
+    .trim();
+
+  // Skip very short chunks that don't have meaningful content
+  if (cleanedText.length < 50) {
+    logger.debug(`Skipping short chunk: ${cleanedText.substring(0, 30)}...`);
+    return null;
+  }
+
+  const embeddings = await getEmbeddings(cleanedText);
+  const hash = md5(cleanedText);
 
   return {
     id: fileKey + "#" + hash,
     values: embeddings,
     metadata: {
-      text: truncateStringByByte(doc.pageContent, 36000),
-      pageNumber: doc.metadata.loc.pageNumber,
+      text: truncateStringByByte(cleanedText, 36000),
+      pageNumber: doc.metadata.loc?.pageNumber || 0,
       fileKey: convertToAscii(fileKey),
+      chunkLength: cleanedText.length,
+      // Add chunk summary for better filtering
+      preview: cleanedText.substring(0, 100),
     },
   };
 }

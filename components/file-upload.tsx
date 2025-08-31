@@ -80,6 +80,7 @@ const FileUpload = () => {
         }
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [mutate, router, fileCount, chatLimit, isUsageRestricted]
   );
 
@@ -102,7 +103,7 @@ const FileUpload = () => {
       {isPending || isUploading ? (
         <>
           <Loader2 size={30} className="animate-spin text-slate-500" />
-          <p className="text-slate-400 mt-1">Spilling tea to GPT...</p>
+          <p className="text-slate-400 mt-1">Spilling tea to AI...</p>
         </>
       ) : (
         <>

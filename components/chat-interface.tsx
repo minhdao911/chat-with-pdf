@@ -79,6 +79,7 @@ const ChatInterface: FunctionComponent<ChatInterfaceProps> = ({
 
   useEffect(() => {
     setCurrentChatId(chatId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // useEffect(() => {
@@ -114,7 +115,8 @@ const ChatInterface: FunctionComponent<ChatInterfaceProps> = ({
         <MessageList
           messages={messages}
           isLoading={query.isLoading}
-          // data={sourcesForMessages}
+          isResponding={isLoading}
+          data={sourcesForMessages}
           chatId={chatId}
         />
         <form
@@ -135,7 +137,7 @@ const ChatInterface: FunctionComponent<ChatInterfaceProps> = ({
             {/* Bottom row with model selector and send button */}
             <div className="flex items-center justify-between w-full pb-2">
               {/* Model selector on the left */}
-              <ModelSelector className="ml-3 w-32" />
+              <ModelSelector className="ml-3" />
 
               {/* Send button on the right */}
               <Button

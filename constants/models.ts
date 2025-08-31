@@ -7,7 +7,7 @@ export const OPENAI_MODELS = {
 
 // Anthropic model configurations
 export const ANTHROPIC_MODELS = {
-  CLAUDE_3_7_SONNET: "claude-3.7-sonnet",
+  CLAUDE_3_7_SONNET: "claude-3-7-sonnet-latest",
 } as const;
 
 // Google model configurations

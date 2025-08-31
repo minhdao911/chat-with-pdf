@@ -111,7 +111,7 @@ function createChatModel(modelName: string, streaming: boolean = false) {
     case "google":
       return new ChatGoogleGenerativeAI({
         apiKey: googleApiKey,
-        model: modelName.replace("gemini-", ""), // Google models need format adjustment
+        model: modelName,
         streaming,
         temperature: 0,
       });
@@ -276,7 +276,10 @@ export async function retrieval({
 
 function getVectorStore(fileKey: string) {
   try {
-    const embeddings = new OpenAIEmbeddings();
+    // Use the same embedding model as in indexing for consistency
+    const embeddings = new OpenAIEmbeddings({
+      modelName: "text-embedding-3-small",
+    });
     const pinecone = new Pinecone({
       apiKey: process.env.PINECONE_API_KEY!,
     });
