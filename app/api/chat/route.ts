@@ -6,8 +6,14 @@ import { Message } from "ai";
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import * as Sentry from "@sentry/nextjs";
+import { VALID_MODELS } from "@/constants/models";
 
 export const runtime = "edge";
+
+function validateModel(selectedModel?: string): string | undefined {
+  if (!selectedModel) return undefined;
+  return VALID_MODELS.includes(selectedModel) ? selectedModel : undefined;
+}
 
 const formatMessages = (messages: Message[]) => {
   const formattedMessages = messages.map(
@@ -30,6 +36,12 @@ export async function POST(req: Request) {
     const previousMessages = messages.slice(0, -1);
     const chatHistory = formatMessages(previousMessages);
 
+    // Validate the selected model
+    const validatedModel = validateModel(selectedModel);
+    if (selectedModel && !validatedModel) {
+      console.warn(`Invalid model received: ${selectedModel}. Using default.`);
+    }
+
     // save user message into db
     await db.insert(_messages).values({
       chatId,
@@ -49,7 +61,7 @@ export async function POST(req: Request) {
       previousMessages,
       fileKey,
       isAdmin,
-      selectedModel,
+      selectedModel: validatedModel,
       streamCallbacks: {
         handleRetrieverEnd: (documents) => {
           sources = documents.map((d) => ({

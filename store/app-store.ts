@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { SafeChat } from "@lib/db/schema";
 import { createComputed } from "zustand-computed";
+import { DEFAULT_MODEL } from "@/constants/models";
 
 type AppStore = {
   chats: SafeChat[];
@@ -42,7 +43,7 @@ export const useAppStore = create<AppStore>()(
       isAdmin: false,
       freeChats: 0,
       freeMessages: 0,
-      selectedModel: "gpt-4o-mini",
+      selectedModel: DEFAULT_MODEL,
       addChat: (chat) =>
         set((state) => {
           const newChats = [chat, ...state.chats];

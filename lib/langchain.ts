@@ -1,5 +1,8 @@
 import { Pinecone } from "@pinecone-database/pinecone";
 import { ChatOpenAI, OpenAIEmbeddings } from "@langchain/openai";
+import { ChatAnthropic } from "@langchain/anthropic";
+import { ChatGoogleGenerativeAI } from "@langchain/google-genai";
+import { ChatDeepSeek } from "@langchain/deepseek";
 import { PineconeStore } from "@langchain/pinecone";
 import { Document } from "@langchain/core/documents";
 import { PromptTemplate } from "@langchain/core/prompts";
@@ -13,10 +16,47 @@ import { CallbackHandlerMethods } from "@langchain/core/callbacks/base";
 import { StreamingTextResponse } from "ai";
 import { ANSWER_TEMPLATE, QUESTION_TEMPLATE } from "./prompts";
 import { logger } from "./logger";
+import {
+  VALID_MODELS,
+  DEFAULT_MODEL,
+  OPENAI_MODELS,
+  ANTHROPIC_MODELS,
+  GOOGLE_MODELS,
+  DEEPSEEK_MODELS,
+} from "@/constants/models";
 
 const openAIApiKey = process.env.OPENAI_API_KEY;
-const defaultModel = "gpt-4o-mini";
-const alternativeModel = "gpt-4o-mini";
+const anthropicApiKey = process.env.ANTHROPIC_API_KEY;
+const googleApiKey = process.env.GOOGLE_API_KEY;
+const deepseekApiKey = process.env.DEEPSEEK_API_KEY;
+
+const defaultModel = DEFAULT_MODEL;
+const alternativeModel = DEFAULT_MODEL;
+
+// Helper functions to determine model providers
+function isOpenAIModel(modelName: string): boolean {
+  return Object.values(OPENAI_MODELS).includes(modelName as any);
+}
+
+function isAnthropicModel(modelName: string): boolean {
+  return Object.values(ANTHROPIC_MODELS).includes(modelName as any);
+}
+
+function isGoogleModel(modelName: string): boolean {
+  return Object.values(GOOGLE_MODELS).includes(modelName as any);
+}
+
+function isDeepSeekModel(modelName: string): boolean {
+  return Object.values(DEEPSEEK_MODELS).includes(modelName as any);
+}
+
+function getModelProvider(modelName: string): string {
+  if (isOpenAIModel(modelName)) return "openai";
+  if (isAnthropicModel(modelName)) return "anthropic";
+  if (isGoogleModel(modelName)) return "google";
+  if (isDeepSeekModel(modelName)) return "deepseek";
+  return "unknown";
+}
 
 function getModelName(messageCount: number, isAdmin: boolean): string {
   return isAdmin
@@ -26,19 +66,84 @@ function getModelName(messageCount: number, isAdmin: boolean): string {
       : alternativeModel;
 }
 
+function validateAndGetModel(
+  selectedModel?: string,
+  messageCount?: number,
+  isAdmin?: boolean
+): string {
+  // If a specific model is selected, validate it
+  if (selectedModel && VALID_MODELS.includes(selectedModel)) {
+    return selectedModel;
+  }
+
+  // If selected model is invalid, log warning and fallback to default logic
+  if (selectedModel && !VALID_MODELS.includes(selectedModel)) {
+    console.warn(
+      `Invalid model selected: ${selectedModel}. Falling back to default.`
+    );
+  }
+
+  // Use default model selection logic
+  return getModelName(messageCount || 0, isAdmin || false);
+}
+
+// Model factory function to create chat instances for different providers
+function createChatModel(modelName: string, streaming: boolean = false) {
+  const provider = getModelProvider(modelName);
+
+  switch (provider) {
+    case "openai":
+      return new ChatOpenAI({
+        apiKey: openAIApiKey,
+        modelName,
+        streaming,
+        temperature: 0,
+      });
+
+    case "anthropic":
+      return new ChatAnthropic({
+        apiKey: anthropicApiKey,
+        modelName,
+        streaming,
+        temperature: 0,
+      });
+
+    case "google":
+      return new ChatGoogleGenerativeAI({
+        apiKey: googleApiKey,
+        model: modelName.replace("gemini-", ""), // Google models need format adjustment
+        streaming,
+        temperature: 0,
+      });
+
+    case "deepseek":
+      return new ChatDeepSeek({
+        apiKey: deepseekApiKey,
+        modelName,
+        streaming,
+        temperature: 0,
+      });
+
+    default:
+      logger.warn(
+        `Unknown provider for model: ${modelName}. Falling back to OpenAI.`
+      );
+      return new ChatOpenAI({
+        apiKey: openAIApiKey,
+        modelName: DEFAULT_MODEL,
+        streaming,
+        temperature: 0,
+      });
+  }
+}
+
 function createStreamingModel(
   selectedModel?: string,
   messageCount?: number,
   isAdmin?: boolean
 ) {
-  const modelName =
-    selectedModel || getModelName(messageCount || 0, isAdmin || false);
-  return new ChatOpenAI({
-    apiKey: openAIApiKey,
-    modelName,
-    streaming: true,
-    temperature: 0,
-  });
+  const modelName = validateAndGetModel(selectedModel, messageCount, isAdmin);
+  return createChatModel(modelName, true);
 }
 
 function createNonStreamingModel(
@@ -46,13 +151,8 @@ function createNonStreamingModel(
   messageCount?: number,
   isAdmin?: boolean
 ) {
-  const modelName =
-    selectedModel || getModelName(messageCount || 0, isAdmin || false);
-  return new ChatOpenAI({
-    apiKey: openAIApiKey,
-    modelName,
-    temperature: 0,
-  });
+  const modelName = validateAndGetModel(selectedModel, messageCount, isAdmin);
+  return createChatModel(modelName, false);
 }
 
 type retrievalArgs = {

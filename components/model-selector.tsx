@@ -8,13 +8,7 @@ import {
   SelectValue,
 } from "./ui/select";
 import { useAppStore } from "@store/app-store";
-
-const MODEL_OPTIONS = [
-  { value: "gpt-4o-mini", label: "GPT-4o Mini" },
-  { value: "gpt-4o", label: "GPT-4o" },
-  { value: "gpt-4-turbo", label: "GPT-4 Turbo" },
-  { value: "gpt-3.5-turbo", label: "GPT-3.5 Turbo" },
-];
+import { MODEL_OPTIONS } from "@/constants/models";
 
 interface ModelSelectorProps {
   className?: string;
@@ -27,16 +21,33 @@ const ModelSelector = ({ className }: ModelSelectorProps) => {
     setSelectedModel(value);
   };
 
+  // Get the label for the selected model
+  const selectedModelLabel = MODEL_OPTIONS.find(
+    (option) => option.value === selectedModel
+  )?.label;
+
   return (
     <div className={className}>
       <Select value={selectedModel} onValueChange={handleModelChange}>
         <SelectTrigger className="w-full text-xs">
-          <SelectValue placeholder="Select model" />
+          <SelectValue placeholder="Select model">
+            {selectedModelLabel}
+          </SelectValue>
         </SelectTrigger>
         <SelectContent>
           {MODEL_OPTIONS.map((option) => (
             <SelectItem key={option.value} value={option.value}>
-              {option.label}
+              <div className="flex flex-col">
+                <div className="flex items-center gap-2">
+                  <span className="font-medium">{option.label}</span>
+                  <span className="text-xs px-1.5 py-0.5 bg-muted rounded text-muted-foreground">
+                    {option.provider}
+                  </span>
+                </div>
+                <span className="text-xs text-muted-foreground">
+                  {option.description}
+                </span>
+              </div>
             </SelectItem>
           ))}
         </SelectContent>
