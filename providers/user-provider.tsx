@@ -55,6 +55,7 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
       hasInitialized.current = true;
       initialize(data);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
 
   const contextValue: UserContextType = {

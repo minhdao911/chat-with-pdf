@@ -133,22 +133,29 @@ export const ensureUserExists = async () => {
       })
       .returning();
 
+    const settings = await getAppSettings();
+    await db.insert(user_settings).values({
+      userId: newUser[0].id,
+      messageCount: 0,
+      freeChats: Number(settings?.free_chats || 0),
+      freeMessages: Number(settings?.free_messages || 0),
+    });
+
     const userChats = await db
       .select()
       .from(chats)
       .where(eq(chats.userId, user.id));
-    const userMessages = await db
-      .select()
-      .from(messages)
-      .where(
-        and(
-          inArray(
-            messages.chatId,
-            userChats.map((chat) => chat.id)
-          ),
-          eq(messages.role, "user")
-        )
-      );
+
+    const chatIds = userChats.map((chat) => chat.id);
+    const userMessages =
+      chatIds.length > 0
+        ? await db
+            .select()
+            .from(messages)
+            .where(
+              and(inArray(messages.chatId, chatIds), eq(messages.role, "user"))
+            )
+        : [];
 
     await db.insert(user_settings).values({
       userId: user.id,

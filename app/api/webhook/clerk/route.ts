@@ -67,14 +67,13 @@ export async function POST(req: Request) {
     const eventType = evt.type;
     if (eventType === "user.created") {
       logger.debug("User created event received");
-      await db
-        .insert(users)
-        .values({
-          id: evt.data.id, // Store Clerk user ID directly in id field
-          email: evt.data.email_addresses[0].email_address,
-          name: evt.data.first_name + " " + evt.data.last_name,
-        })
-        .returning();
+      await db.insert(users).values({
+        id: evt.data.id, // Store Clerk user ID directly in id field
+        email: evt.data.email_addresses[0].email_address,
+        name:
+          `${evt.data.first_name || ""} ${evt.data.last_name || ""}`.trim() ||
+          "User",
+      });
 
       const settings = await db.select().from(app_settings);
 
