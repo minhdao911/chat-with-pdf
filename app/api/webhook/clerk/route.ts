@@ -1,11 +1,20 @@
 import { db } from "@/lib/db";
-import { app_settings, user_settings, users } from "@/lib/db/schema";
+import {
+  app_settings,
+  chats,
+  messages,
+  sources,
+  user_settings,
+  users,
+} from "@/lib/db/schema";
 import { WebhookEvent } from "@clerk/nextjs/server";
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { Webhook } from "svix";
 import { logger } from "@lib/logger";
+import { deleteVectors } from "@lib/pinecone";
+import { removeFileFromS3 } from "@lib/s3";
 
 export const dynamic = "force-dynamic";
 
@@ -89,10 +98,44 @@ export async function POST(req: Request) {
     if (eventType === "user.deleted") {
       logger.debug("User deleted event received");
       if (evt.data.id) {
-        await db.delete(users).where(eq(users.id, evt.data.id));
+        const userChats = await db
+          .select()
+          .from(chats)
+          .where(eq(chats.userId, evt.data.id));
+
+        if (userChats.length > 0) {
+          // delete pdf files
+          await Promise.all(
+            userChats.map((chat) => {
+              return removeFileFromS3(chat.fileKey);
+            })
+          );
+          await Promise.all(
+            userChats.map((chat) => {
+              return deleteVectors(chat.fileKey);
+            })
+          );
+
+          // delete user chats
+          await db.delete(messages).where(
+            inArray(
+              messages.chatId,
+              userChats.map((chat) => chat.id)
+            )
+          );
+          await db.delete(sources).where(
+            inArray(
+              sources.chatId,
+              userChats.map((chat) => chat.id)
+            )
+          );
+          await db.delete(chats).where(eq(chats.userId, evt.data.id));
+        }
+
         await db
           .delete(user_settings)
           .where(eq(user_settings.userId, evt.data.id));
+        await db.delete(users).where(eq(users.id, evt.data.id));
 
         logger.debug("User deleted from database:", {
           user: evt.data.id,
@@ -105,5 +148,6 @@ export async function POST(req: Request) {
     logger.error("Error in clerk webhook:", {
       error: err,
     });
+    return new NextResponse("Error in clerk webhook", { status: 500 });
   }
 }
