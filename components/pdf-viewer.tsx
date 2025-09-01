@@ -11,11 +11,11 @@ const PdfViewer: FunctionComponent<PdfViewerProps> = ({
   pdfUrl,
 }: PdfViewerProps) => {
   const [width, setWidth] = useState(0);
-  const [maxWidth, setMaxWidth] = useState(window.innerWidth - 598);
+  const [maxWidth, setMaxWidth] = useState(window.innerWidth - 719);
 
   useEffect(() => {
     window.addEventListener("resize", () => {
-      setMaxWidth(window.innerWidth - 598);
+      setMaxWidth(window.innerWidth - 719);
     });
 
     return () => {
