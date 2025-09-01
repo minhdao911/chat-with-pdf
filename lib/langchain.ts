@@ -24,6 +24,7 @@ import {
   GOOGLE_MODELS,
   DEEPSEEK_MODELS,
 } from "@/constants/models";
+import { ApiKeys } from "@/types";
 
 const openAIApiKey = process.env.OPENAI_API_KEY;
 const anthropicApiKey = process.env.ANTHROPIC_API_KEY;
@@ -88,37 +89,57 @@ function validateAndGetModel(
 }
 
 // Model factory function to create chat instances for different providers
-function createChatModel(modelName: string, streaming: boolean = false) {
+function createChatModel(
+  modelName: string,
+  streaming: boolean = false,
+  apiKeys?: ApiKeys
+) {
   const provider = getModelProvider(modelName);
 
   switch (provider) {
     case "openai":
+      const openaiKey = apiKeys?.openai || openAIApiKey;
+      if (!openaiKey) {
+        throw new Error("OpenAI API key is required for this model");
+      }
       return new ChatOpenAI({
-        apiKey: openAIApiKey,
+        apiKey: openaiKey,
         modelName,
         streaming,
         temperature: 0,
       });
 
     case "anthropic":
+      const anthropicKey = apiKeys?.anthropic || anthropicApiKey;
+      if (!anthropicKey) {
+        throw new Error("Anthropic API key is required for this model");
+      }
       return new ChatAnthropic({
-        apiKey: anthropicApiKey,
+        apiKey: anthropicKey,
         modelName,
         streaming,
         temperature: 0,
       });
 
     case "google":
+      const googleKey = apiKeys?.google || googleApiKey;
+      if (!googleKey) {
+        throw new Error("Google API key is required for this model");
+      }
       return new ChatGoogleGenerativeAI({
-        apiKey: googleApiKey,
+        apiKey: googleKey,
         model: modelName,
         streaming,
         temperature: 0,
       });
 
     case "deepseek":
+      const deepseekKey = apiKeys?.deepseek || deepseekApiKey;
+      if (!deepseekKey) {
+        throw new Error("DeepSeek API key is required for this model");
+      }
       return new ChatDeepSeek({
-        apiKey: deepseekApiKey,
+        apiKey: deepseekKey,
         modelName,
         streaming,
         temperature: 0,
@@ -128,8 +149,12 @@ function createChatModel(modelName: string, streaming: boolean = false) {
       logger.warn(
         `Unknown provider for model: ${modelName}. Falling back to OpenAI.`
       );
+      const fallbackKey = apiKeys?.openai || openAIApiKey;
+      if (!fallbackKey) {
+        throw new Error("OpenAI API key is required for fallback model");
+      }
       return new ChatOpenAI({
-        apiKey: openAIApiKey,
+        apiKey: fallbackKey,
         modelName: DEFAULT_MODEL,
         streaming,
         temperature: 0,
@@ -140,19 +165,21 @@ function createChatModel(modelName: string, streaming: boolean = false) {
 function createStreamingModel(
   selectedModel?: string,
   messageCount?: number,
-  isAdmin?: boolean
+  isAdmin?: boolean,
+  apiKeys?: ApiKeys
 ) {
   const modelName = validateAndGetModel(selectedModel, messageCount, isAdmin);
-  return createChatModel(modelName, true);
+  return createChatModel(modelName, true, apiKeys);
 }
 
 function createNonStreamingModel(
   selectedModel?: string,
   messageCount?: number,
-  isAdmin?: boolean
+  isAdmin?: boolean,
+  apiKeys?: ApiKeys
 ) {
   const modelName = validateAndGetModel(selectedModel, messageCount, isAdmin);
-  return createChatModel(modelName, false);
+  return createChatModel(modelName, false, apiKeys);
 }
 
 type retrievalArgs = {
@@ -162,6 +189,7 @@ type retrievalArgs = {
   fileKey: string;
   isAdmin: boolean;
   selectedModel?: string;
+  apiKeys?: ApiKeys;
   streamCallbacks: CallbackHandlerMethods;
 };
 
@@ -180,6 +208,7 @@ export async function retrieval({
   fileKey,
   isAdmin,
   selectedModel,
+  apiKeys,
   streamCallbacks,
 }: retrievalArgs) {
   const sanitizedQuestion = question.trim().replaceAll("\n", " ");
@@ -191,7 +220,7 @@ export async function retrieval({
    */
   const standaloneQuestionChain = RunnableSequence.from([
     questionPrompt,
-    createNonStreamingModel(selectedModel, messageCount, isAdmin),
+    createNonStreamingModel(selectedModel, messageCount, isAdmin, apiKeys),
     new StringOutputParser(),
   ]);
 
@@ -222,7 +251,7 @@ export async function retrieval({
       question: (input) => input.question,
     },
     answerPrompt,
-    createStreamingModel(selectedModel, messageCount, isAdmin),
+    createStreamingModel(selectedModel, messageCount, isAdmin, apiKeys),
   ]);
 
   const conversationalRetrievalQAChain = RunnableSequence.from([

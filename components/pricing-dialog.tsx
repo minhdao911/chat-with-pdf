@@ -52,13 +52,10 @@ const PricingDialog: FunctionComponent<PricingDialogProps> = () => {
   return (
     <Dialog>
       <DialogTrigger className="w-full">
-        <Button
-          variant="ghost"
-          className="w-full text-neutral-900 bg-purple-custom-400 hover:bg-purple-custom-500/70 dark:bg-neutral-600 dark:text-neutral-300 dark:hover:bg-neutral-800/50"
-        >
+        <Button className="w-full">
           <Crown
             size={20}
-            className="text-neutral-900 dark:text-neutral-300 mr-2"
+            className="text-neutral-300 dark:text-neutral-900 mr-2"
           />
           Upgrade to Pro
         </Button>

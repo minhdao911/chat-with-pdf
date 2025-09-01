@@ -51,14 +51,17 @@ const LimitReachedDialog = ({
                 </span>
               </p>
               <p>
-                Thank you for your interest in the product. Feel free to drop me
-                a line to increase the limit if you want to continue trying out.
+                Thank you for your interest in the product. You can continue
+                using AskPDF by adding your own API keys in the settings.
               </p>
               <div className="flex items-start gap-2 p-3 bg-neutral-50 dark:bg-neutral-800 rounded-lg">
-                <Mail size={18} className="text-purple-custom-500" />
+                <Mail
+                  size={26}
+                  className="mt-0.5 h-auto text-purple-custom-500"
+                />
                 <span className="text-sm">
-                  Use the contact button in the bottom-right corner of the
-                  sidebar to reach out!
+                  If you have any questions, contact me through the contact
+                  button inside the settings.
                 </span>
               </div>
             </div>

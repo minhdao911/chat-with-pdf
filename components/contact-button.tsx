@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { MessageCircle, Send } from "lucide-react";
+import { Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -18,7 +18,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "react-hot-toast";
 import axios from "axios";
 import { useUser } from "@clerk/nextjs";
-import { TooltipIcon } from "@/components/ui/tooltip";
 
 interface ContactFormData {
   name: string;
@@ -50,7 +49,7 @@ export default function ContactButton() {
     if (!isOpen) {
       reset();
     }
-  }, [isOpen]);
+  }, [isOpen, reset]);
 
   const onSubmit = async (data: ContactFormData) => {
     setIsSubmitting(true);
@@ -86,7 +85,7 @@ export default function ContactButton() {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger>
-        <TooltipIcon icon={MessageCircle} tooltipText="Contact" />
+        <Button variant="link"> Contact Support</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>

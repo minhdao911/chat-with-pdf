@@ -1,7 +1,7 @@
 import { db } from "@/lib/db";
 import { messages as _messages, sources as _sources } from "@/lib/db/schema";
 import { retrieval } from "@/lib/langchain";
-import { updateUserSettings } from "@lib/account";
+import { getUserSettings, updateUserSettings } from "@lib/account";
 import { Message } from "ai";
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
@@ -30,8 +30,29 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { messages, fileKey, chatId, messageCount, isAdmin, selectedModel } =
-      await req.json();
+    const {
+      messages,
+      fileKey,
+      chatId,
+      messageCount,
+      isAdmin,
+      selectedModel,
+      apiKeys,
+    } = await req.json();
+
+    // Check if users running out of free messages
+    const userSettings = await getUserSettings();
+    if (
+      userSettings?.messageCount &&
+      userSettings?.freeMessages &&
+      userSettings?.messageCount >= userSettings?.freeMessages
+    ) {
+      return NextResponse.json(
+        { error: "Free messages limit reached" },
+        { status: 403 }
+      );
+    }
+
     const currentMessageContent = messages[messages.length - 1].content;
     const previousMessages = messages.slice(0, -1);
     const chatHistory = formatMessages(previousMessages);
@@ -41,16 +62,6 @@ export async function POST(req: Request) {
     if (selectedModel && !validatedModel) {
       console.warn(`Invalid model received: ${selectedModel}. Using default.`);
     }
-
-    // save user message into db
-    await db.insert(_messages).values({
-      chatId,
-      content: currentMessageContent,
-      role: "user",
-    });
-    await updateUserSettings({
-      messageCount: messageCount + 1,
-    });
 
     let count = 0;
     let sources: { content: string; pageNumber: number }[] = [];
@@ -62,6 +73,7 @@ export async function POST(req: Request) {
       fileKey,
       isAdmin,
       selectedModel: validatedModel,
+      apiKeys,
       streamCallbacks: {
         handleRetrieverEnd: (documents) => {
           sources = documents.map((d) => ({
@@ -72,6 +84,16 @@ export async function POST(req: Request) {
         handleLLMEnd: async (output) => {
           count++;
           if (count == 2) {
+            // save user message into db
+            await db.insert(_messages).values({
+              chatId,
+              content: currentMessageContent,
+              role: "user",
+            });
+            await updateUserSettings({
+              messageCount: messageCount + 1,
+            });
+
             // save ai message into db
             const completion = output.generations[0][0].text;
             const messageId = await db
@@ -105,6 +127,9 @@ export async function POST(req: Request) {
         error: err,
       },
     });
-    return NextResponse.json({ error: err }, { status: 500 });
+    return NextResponse.json(
+      { error: (err as Error).message },
+      { status: 500 }
+    );
   }
 }

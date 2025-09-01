@@ -37,7 +37,7 @@ interface UserProviderProps {
 
 export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   const { user, isLoaded } = useUser();
-  const { initialize } = useAppStore();
+  const { initialize, initializeApiKeys } = useAppStore();
   const hasInitialized = useRef(false);
 
   // Only initialize when user is loaded and authenticated
@@ -49,6 +49,13 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     retry: 3,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
   });
+
+  useEffect(() => {
+    // Initialize API keys when user is loaded
+    if (isLoaded && user?.id) {
+      initializeApiKeys(user.id);
+    }
+  }, [isLoaded, initializeApiKeys]);
 
   useEffect(() => {
     if (data && !hasInitialized.current) {

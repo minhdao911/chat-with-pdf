@@ -8,6 +8,7 @@ import UsageInfo from "./usage-info";
 import ContactButton from "./contact-button";
 import { useAppStore } from "@store/app-store";
 import { useUserInitialization } from "@providers/user-provider";
+import SettingsDialog from "./settings-dialog";
 
 interface UserSettingsProps {}
 
@@ -41,7 +42,7 @@ const UserSettings = ({}: UserSettingsProps) => {
             iconClassName={darkmode ? "text-white" : "text-neutral-600"}
             onClick={() => setTheme(darkmode ? "light" : "dark")}
           />
-          <ContactButton />
+          <SettingsDialog />
         </div>
       </div>
     </div>

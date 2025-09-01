@@ -32,7 +32,7 @@ export const ALL_MODELS = {
 export const VALID_MODELS = Object.values(ALL_MODELS) as string[];
 
 // Default model
-export const DEFAULT_MODEL = OPENAI_MODELS.GPT_4O_MINI;
+export const DEFAULT_MODEL = GOOGLE_MODELS.GEMINI_2_5_FLASH;
 
 // Model options for the UI selector
 export const MODEL_OPTIONS = [

@@ -5,7 +5,7 @@ import { FunctionComponent, useEffect, useState } from "react";
 import { useChat } from "ai/react";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2, CornerDownRight } from "lucide-react";
-import { SafeChat } from "@/lib/db/schema";
+import { SafeChat, SafeSource } from "@/lib/db/schema";
 import { Button } from "./ui/button";
 import MessageList from "./message-list";
 import { Textarea } from "./ui/textarea";
@@ -13,6 +13,7 @@ import LimitReachedDialog from "./limit-reached-dialog";
 import ModelSelector from "./model-selector";
 import { useAppStore } from "@store/app-store";
 import { useDbEvents } from "@providers/db-events-provider";
+import toast from "react-hot-toast";
 
 interface ChatInterfaceProps {
   currentChat: SafeChat;
@@ -31,6 +32,7 @@ const ChatInterface: FunctionComponent<ChatInterfaceProps> = ({
     setCurrentChatId,
     updateMessageCount,
     selectedModel,
+    apiKeys,
   } = useAppStore();
 
   const messageLimit = freeMessages || Number(settings?.free_messages);
@@ -58,6 +60,7 @@ const ChatInterface: FunctionComponent<ChatInterfaceProps> = ({
         messageCount,
         isAdmin,
         selectedModel,
+        apiKeys,
       },
       initialMessages: query.data?.messages || [],
       onResponse: (response) => {
@@ -75,6 +78,20 @@ const ChatInterface: FunctionComponent<ChatInterfaceProps> = ({
           });
         }
       },
+      onError: (error) => {
+        const message = JSON.parse(error.message);
+        if (typeof message.error === "string") {
+          toast.error(message.error, {
+            position: "bottom-right",
+            duration: 5000,
+          });
+        } else {
+          toast.error("Something went wrong", {
+            position: "bottom-right",
+            duration: 5000,
+          });
+        }
+      },
     });
 
   useEffect(() => {
@@ -82,17 +99,17 @@ const ChatInterface: FunctionComponent<ChatInterfaceProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // useEffect(() => {
-  //   if (query.data?.sources) {
-  //     const msgSources = query.data?.sources
-  //       ? (query.data?.sources as SafeSource[]).reduce(
-  //           (a, v) => ({ ...a, [v.messageId]: v.data }),
-  //           {}
-  //         )
-  //       : {};
-  //     setSourcesForMessages(msgSources);
-  //   }
-  // }, [query.data?.sources]);
+  useEffect(() => {
+    if (query.data?.sources) {
+      const msgSources = query.data?.sources
+        ? (query.data?.sources as SafeSource[]).reduce(
+            (a, v) => ({ ...a, [v.messageId]: v.data }),
+            {}
+          )
+        : {};
+      setSourcesForMessages(msgSources);
+    }
+  }, [query.data?.sources]);
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     if (isUsageRestricted && messageCount === messageLimit) {

@@ -89,24 +89,19 @@ const UsageInfo = ({
 
               <div className="border-t pt-3 flex flex-col gap-3">
                 <p className="font-medium text-neutral-900 dark:text-neutral-100">
-                  Need more usage?
+                  Run out of usage?
                 </p>
                 <p className="text-sm">
-                  If you need higher limits or want to provide feedback about
-                  the product, please don&apos;t hesitate to contact me.
+                  You can add your API keys in the settings to continue using
+                  the app. The keys are encrypted and stored on your local
+                  machine, it cannot be used and accessed by anyone else except
+                  you.
                 </p>
-                <div className="flex items-start gap-2 p-3 bg-neutral-50 dark:bg-neutral-800 rounded-lg">
-                  <Mail size={18} className="text-purple-custom-500" />
-                  <span className="text-sm">
-                    Use the contact button in the bottom-right corner of the
-                    sidebar to reach out!
-                  </span>
-                </div>
+                <p className="text-sm">
+                  If you have any questions, contact me through the contact
+                  button inside the settings.
+                </p>
               </div>
-
-              <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                Thank you for your interest! 🙏
-              </p>
             </DialogDescription>
           </DialogHeader>
         </DialogContent>
