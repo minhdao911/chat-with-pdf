@@ -5,7 +5,7 @@ import { FunctionComponent, useEffect, useState } from "react";
 import { useChat } from "ai/react";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2, CornerDownRight } from "lucide-react";
-import { SafeChat, SafeSource } from "@/lib/db/schema";
+import { SafeChat } from "@/lib/db/schema";
 import { Button } from "./ui/button";
 import MessageList from "./message-list";
 import { Textarea } from "./ui/textarea";
@@ -99,17 +99,17 @@ const ChatInterface: FunctionComponent<ChatInterfaceProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    if (query.data?.sources) {
-      const msgSources = query.data?.sources
-        ? (query.data?.sources as SafeSource[]).reduce(
-            (a, v) => ({ ...a, [v.messageId]: v.data }),
-            {}
-          )
-        : {};
-      setSourcesForMessages(msgSources);
-    }
-  }, [query.data?.sources]);
+  // useEffect(() => {
+  //   if (query.data?.sources) {
+  //     const msgSources = query.data?.sources
+  //       ? (query.data?.sources as SafeSource[]).reduce(
+  //           (a, v) => ({ ...a, [v.messageId]: v.data }),
+  //           {}
+  //         )
+  //       : {};
+  //     setSourcesForMessages(msgSources);
+  //   }
+  // }, [query.data?.sources]);
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     if (isUsageRestricted && messageCount === messageLimit) {
@@ -133,7 +133,7 @@ const ChatInterface: FunctionComponent<ChatInterfaceProps> = ({
           messages={messages}
           isLoading={query.isLoading}
           isResponding={isLoading}
-          data={sourcesForMessages}
+          // data={sourcesForMessages}
           chatId={chatId}
         />
         <form

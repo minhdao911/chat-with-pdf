@@ -12,7 +12,7 @@ interface MessageListProps {
   chatId: string;
   isLoading: boolean;
   isResponding: boolean;
-  data: Record<string, any>;
+  data?: Record<string, any>;
 }
 
 const MessageList: FunctionComponent<MessageListProps> = ({
@@ -78,7 +78,7 @@ const MessageList: FunctionComponent<MessageListProps> = ({
             {m.content}
             {m.role !== "user" && (
               <div className="flex">
-                <SourcesDialog sources={data[m.id] ?? data[i]} />
+                {data && <SourcesDialog sources={data[m.id] ?? data[i]} />}
                 <TooltipButton
                   icon={copiedMessageId === m.id ? Check : Clipboard}
                   tooltipText="Copy"
