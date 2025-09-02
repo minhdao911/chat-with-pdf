@@ -63,7 +63,6 @@ const FileUpload = () => {
           mutate(data, {
             onSuccess: ({ chat }: { chat: SafeChat }) => {
               toast.success("Uploaded file successfully");
-              console.log("chat", chat);
               addChat(chat);
               router.push(`/chat/${chat.id}`);
             },

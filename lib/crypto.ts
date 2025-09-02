@@ -6,6 +6,7 @@
 "use client";
 
 import CryptoJS from "crypto-js";
+import { logger } from "./logger";
 
 // Fixed salt for key derivation (in production, this should be environment-specific)
 const ENCRYPTION_SALT = "chat-pdf-app-salt-2024";
@@ -36,7 +37,7 @@ export function encryptData(data: string, userId: string): string {
 
     return encrypted;
   } catch (error) {
-    console.error("Encryption failed:", error);
+    logger.error("Encryption failed:", error);
     throw new Error("Failed to encrypt data");
   }
 }
@@ -60,7 +61,7 @@ export function decryptData(encryptedData: string, userId: string): string {
 
     return decryptedString;
   } catch (error) {
-    console.error("Decryption failed:", error);
+    logger.error("Decryption failed:", error);
     throw new Error("Failed to decrypt data");
   }
 }

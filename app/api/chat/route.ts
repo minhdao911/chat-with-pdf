@@ -7,6 +7,7 @@ import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import * as Sentry from "@sentry/nextjs";
 import { VALID_MODELS } from "@/constants/models";
+import { logger } from "@lib/logger";
 
 export const runtime = "edge";
 
@@ -60,7 +61,7 @@ export async function POST(req: Request) {
     // Validate the selected model
     const validatedModel = validateModel(selectedModel);
     if (selectedModel && !validatedModel) {
-      console.warn(`Invalid model received: ${selectedModel}. Using default.`);
+      logger.warn(`Invalid model received: ${selectedModel}. Using default.`);
     }
 
     let count = 0;

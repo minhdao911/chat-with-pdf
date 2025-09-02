@@ -5,6 +5,7 @@ import { createComputed } from "zustand-computed";
 import { DEFAULT_MODEL } from "@/constants/models";
 import { ApiKeys } from "@/types";
 import { encryptData, decryptData, isCryptoAvailable } from "@/lib/crypto";
+import { logger } from "@lib/logger";
 
 // LocalStorage keys
 const STORAGE_KEYS = {
@@ -21,11 +22,10 @@ const saveApiKeysToStorage = (apiKeys: ApiKeys, userId: string) => {
       localStorage.setItem(STORAGE_KEYS.API_KEYS, encryptedData);
     } else {
       // Fallback to unencrypted storage if crypto is not available
-      console.warn("crypto-js not available, storing API keys unencrypted");
       localStorage.setItem(STORAGE_KEYS.API_KEYS, JSON.stringify(apiKeys));
     }
   } catch (error) {
-    console.error("Error saving API keys:", error);
+    logger.error("Error saving API keys:", error);
   }
 };
 
@@ -42,13 +42,13 @@ const loadApiKeysFromStorage = (userId: string): ApiKeys => {
         return JSON.parse(decryptedData);
       } catch (error) {
         // If decryption fails, try parsing as unencrypted (for backward compatibility)
-        console.warn(
+        logger.warn(
           "Failed to decrypt API keys, attempting to parse as unencrypted"
         );
         try {
           return JSON.parse(stored);
         } catch (parseError) {
-          console.error("Error parsing stored API keys:", parseError);
+          logger.error("Error parsing stored API keys:", parseError);
           return {};
         }
       }
@@ -57,7 +57,7 @@ const loadApiKeysFromStorage = (userId: string): ApiKeys => {
       return JSON.parse(stored);
     }
   } catch (error) {
-    console.error("Error loading API keys:", error);
+    logger.error("Error loading API keys:", error);
     return {};
   }
 };
@@ -110,13 +110,11 @@ export const useAppStore = create<AppStore>()(
       addChat: (chat) =>
         set((state) => {
           const newChats = [chat, ...state.chats];
-          console.log("addChat newChats", newChats);
           return { chats: newChats };
         }),
       removeChat: (chatId) =>
         set((state) => {
           const newChats = state.chats.filter((chat) => chat.id !== chatId);
-          console.log("removeChat newChats", newChats);
           return { chats: newChats };
         }),
       setCurrentChatId: (currentChatId) => set({ currentChatId }),

@@ -79,7 +79,7 @@ function validateAndGetModel(
 
   // If selected model is invalid, log warning and fallback to default logic
   if (selectedModel && !VALID_MODELS.includes(selectedModel)) {
-    console.warn(
+    logger.warn(
       `Invalid model selected: ${selectedModel}. Falling back to default.`
     );
   }

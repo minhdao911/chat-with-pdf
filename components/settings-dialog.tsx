@@ -18,6 +18,7 @@ import ContactButton from "./contact-button";
 import { useAppStore, ApiKeys } from "@/store/app-store";
 import { useUser } from "@clerk/nextjs";
 import toast from "react-hot-toast";
+import { logger } from "@lib/logger";
 
 export default function SettingsDialog() {
   const { apiKeys, setApiKeys } = useAppStore();
@@ -59,7 +60,7 @@ export default function SettingsDialog() {
       setApiKeys(filteredApiKeys, user.id);
       toast.success("API keys added successfully");
     } catch (error) {
-      console.error("Error saving API keys:", error);
+      logger.error("Error saving API keys:", error);
       toast.error("Failed to save API keys");
     } finally {
       setIsSaving(false);
